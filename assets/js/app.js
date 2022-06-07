@@ -1,6 +1,5 @@
 // We import the CSS which is extracted to its own file by esbuild.
 // Remove this line if you add a your own CSS build pipeline (e.g postcss).
-import "../css/app.css"
 
 // If you want to use Phoenix channels, run `mix help phx.gen.channel`
 // to get started and then uncomment the line below.
@@ -42,4 +41,21 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+const burger = document.querySelector("#burger");
+const toggle_drawer = document.querySelector("#my-drawer-2")
+const menu = document.querySelector("#menu");
+
+burger.addEventListener('click', () => {
+  console.log({"toogle": toggle_drawer.checked})
+  toggle_drawer.checked != toggle_drawer.checked
+  burger.innerHTML = toggle_drawer.checked ?  "menu": "menu_open"
+  // if (menu.classList.contains('hidden')) {
+  //   menu.classList.remove('hidden');
+  // } else {
+  //   menu.classList.add('hidden');
+  //   burger.innerHTML = "menu"
+  // }
+})
+
 

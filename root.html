@@ -18,9 +18,11 @@
       <nav class="bg-white h-14 w-max-full text-main px-1 md:px-0 border-b border-b-[#777777] ">
         <div class="grid grid-cols-2 md:grid-cols-3 grid-rows-1 place-self-center  h-full">
           <div class="flex col-start-1 col-span-2 my-auto">
-            <label id="burger" for="my-drawer-2" class="material-icons md-48 text-3xl hover:cursor-pointer">
-              menu
-            </label>
+            <span id="menu">
+              <span class="material-icons md-48 text-3xl">
+                menu
+              </span>
+            </span>
             <div id="logo" class="text-4xl hover:text-highlight font-app_logo uppercase ml-4 my-auto align-text-bottom">
               Sapiens
             </div>
@@ -48,46 +50,37 @@
       </nav>
     </section>
   </header>
-  <main id="main" class="h-screen bg-red-500 relative flex">
-    <div class="drawer">
-      <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-      <div class="drawer-content flex flex-col items-center justify-center">
-        <!-- Page content here -->
-        Conteúdo
-  <!-- <%= @inner_content %> -->
-      </div>
-      <div class="drawer-side">
-        <label for="my-drawer-2" class="drawer-overlay lg:hidden"></label>
-          <ul class="p-4 overflow-y-auto w-80 bg-[#FFFFFF]">
-          <!-- Sidebar content here -->
-            <%=for entry <- [{"sync","Acerto de Matrícula"}, {"lock", "Avaliacoes" },{"casino", "Dados Acadêmicos" },
-              {"casino", "Dados Pessoais" }, {"library_books", "Biblioteca" }, {"task","Plano de estudo"}] do %>
-
-              <li>
-                <div
-                class="flex font-bold align-center pl-2 hover:cursor-pointer hover:bg-[#eeeee4] h-12 w-full border-b border-second-300 items-center hover:text-main-100">
-                <span class="material-icons mr-4">
-                  <%=elem(entry, 0)%>
-                </span>
-                <%=elem(entry, 1)%>
-                </div>
-              </li>
-              <%end%>
-        </ul>
-
-      </div>
+  <div class="w-[80%] md:w-[20%] h-[90vh] bg-second-100 border-r border-black">
+    <div>
+      <span class="material-icons md-40 ml-0">menu_open</span>
+      <span> Menu </span>
     </div>
-    <!-- <div id="menu" class="hidden w-[80%]   md:w-[25%] lg:w-[20%] h-full bg-second-100 border-r border-second-300"> -->
-    <!--   <div id="menu_header" class="hidden"> -->
-    <!--     <span id="unburger" class=" material-icons md-40 ml-0 hover:cursor-pointer">menu_open</span> -->
-    <!--     <span> Menu </span> -->
-    <!--   </div> -->
-    <!--   <div id="none" class="h-screen absolute top-0 left-[80%] bg-black w-full"> </div> -->
-    <!-- </div> -->
-  </main>
-  <footer>
-    <div id="footer" class="w-100 bg-main-200 text-white"> Footer </div>
-  </footer>
+    <div>
+      Acerto de Matrícula
+    </div>
+    <div>
+      Avaliacõs
+    </div>
+    <div>
+      Dados Academicos
+    </div>
+    <div>
+      Dados Pessoais
+    </div>
+    <div>
+      Biblipteca
+    </div>
+    <div>
+      Plano de Estudo
+    </div>
+    <div>
+      Email
+    </div>
+
+
+  </div>
+  <!-- <%= @inner_content %> -->
+  <div id="footer" class="w-100 bg-main-200 text-white"> Footer </div>
 </body>
 
 </html>
