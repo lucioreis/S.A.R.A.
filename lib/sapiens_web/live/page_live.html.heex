@@ -1,0 +1,144 @@
+<div class="flex flex-col md:flex-row">
+  <div class="md:hidden bg-base-100 h-full w-[95%] md:w-1/2 text-[#0c0c0c]">
+    <div class="carousel w-full m-2">
+      <div id="item1" class="carousel-item w-full">
+
+        <div class="card  h-full w-full border border-black">
+          <div class="bg-highlight text-base-100 center text-xl py-2"> Segunda </div>
+
+          <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+              <!-- head -->
+              <thead>
+                <tr>
+                  <th>Horário</th>
+                  <th>Disciplina</th>
+                  <th>Local</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- row 1 -->
+                <tr>
+                  <th>8:00</th>
+                  <td>INF 123</td>
+                  <td>PVA 123</td>
+                </tr>
+                <tr>
+                  <th>8:50</th>
+                  <td>INF 123</td>
+                  <td>PVA 123</td>
+                </tr>
+                <!-- row 2 -->
+                <tr>
+                  <th>10:00</th>
+                  <td>INF 435</td>
+                  <td>PVA 234</td>
+                </tr>
+                <!-- row 3 -->
+                <tr>
+                  <th>16:00</th>
+                  <td>FIS 203</td>
+                  <td>PVA 666 </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div id="item2" class="carousel-item w-full">
+
+        <div class="card w-96 bg-base-100 shadow-xl border border-black">
+          <div class="bg-highlight text-base-100 center text-xl"> Terca </div>
+          <div class="card-body bg-base-200 flex flex-col">
+            <div class="card bg-base-100 border border-black">
+              <h2 class="card-title text-highlight center"> INF 321 </h2>
+              <div class="flex justify-between mx-2">
+                <p class="font-bold"> Horário: 10:00 AM </p>
+                <p class="font-bold"> Local: PVZ 666 </p>
+              </div>
+            </div>
+
+
+            <div class="card bg-base-100 border border-black">
+              <h2 class="card-title text-highlight center"> INF 900 </h2>
+              <div class="flex justify-between mx-2">
+                <p> Horário: 4:00 </p>
+                <p> Local: PVZ 666 </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div id="item3" class="carousel-item w-full">
+
+      </div>
+      <div id="item4" class="carousel-item w-full">
+        <img src="https://api.lorem.space/image/car?w=800&h=200&hash=225E6693" class="w-full" />
+      </div>
+    </div>
+    <div class="flex justify-center w-full py-2 gap-2">
+      <a href="#item1" class="btn btn-xs bg-highlight rounded-md">Seg</a>
+      <a href="#item2" class="btn btn-xs">Ter</a>
+      <a href="#item3" class="btn btn-xs">Qua</a>
+      <a href="#item4" class="btn btn-xs">Qui</a>
+      <a href="#item5" class="btn btn-xs">Sex</a>
+      <a href="#item6" class="btn btn-xs">Sab</a>
+    </div>
+  </div>
+
+  <div class="hidden m-4">
+
+    <div class="overflow-clip text-xs">
+      <table class="table-zebra table-compact  p-0 m-0 w-full">
+        <!-- head -->
+        <thead>
+          <tr>
+            <th class="bg-highlight text-base-100">Horário</th>
+            <th class="bg-highlight text-base-100">Segunda</th>
+            <th class="bg-highlight text-base-100">Terca</th>
+            <th class="bg-highlight text-base-100">Quarta</th>
+            <th class="bg-highlight text-base-100">Quinta</th>
+            <th class="bg-highlight text-base-100">Sexta</th>
+            <th class="bg-highlight text-base-100">Sábado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- row 1 -->
+          <%= for time <- 7..18 do %>
+            <tr class="text-sm">
+              <th>
+                <%= time %> :00
+              </th>
+              <%= for day <- 1..6 do %>
+                <td>
+                  <p>INF 123</p>
+                  <p> PVA 456 </p>
+                </td>
+                <% end %>
+            </tr>
+            <% end %>
+              <!-- row 2 -->
+        </tbody>
+      </table>
+    </div>
+
+
+  </div>
+
+  <div class="m-2 md:ml-0 flex flex-col w-full md:w-1/2 gap-y-2">
+    <div class="center w-full text-3xl p-2 text-highlight"> <span> Notícias</span> </div>
+    <div class="flex ">
+      <span class="material-icons md-32 my-auto"> <span> new_releases </span></span>
+      <span> Você está prestes a ser jubilado. <a href="#" class="underline"> Clique </a> para saber mais. </span>
+    </div>
+
+    <div class="flex">
+      <span class="material-icons md-32 my-auto"> <span> new_releases </span></span>
+      <span> O registro escolar já possui a data da provas e classes <a href="#" class="underline"> Clique </a> para saber mais. </span>
+    </div>
+  </div>
+
+</div>

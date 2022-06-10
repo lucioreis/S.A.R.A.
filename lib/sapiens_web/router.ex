@@ -18,6 +18,12 @@ defmodule SapiensWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    live "/home", PageLive
+    live "/acerto", AcertoLive
+    live "/academicos", DadosAcademicosLive
+    live "/pessoal", DadosPessoalLive
+    live "/plano-estudo", PlanoEstudoLive
+    live "/avaliacoes", AvaliacoesLive
   end
 
   # Other scopes may use custom stacks.

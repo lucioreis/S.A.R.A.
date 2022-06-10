@@ -8,86 +8,18 @@
   <meta name="csrf-token" content={csrf_token_value()}>
   <%= live_title_tag assigns[:page_title] || "Sapiens" , suffix: " · Phoenix Framework" %>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css" )} />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js" )}></script>
 </head>
 
-<body class="bg-second-200 font-body">
-  <header>
-    <section class="w-100">
-      <nav class="bg-white h-14 w-max-full text-main px-1 md:px-0 border-b border-b-[#777777] ">
-        <div class="grid grid-cols-2 md:grid-cols-3 grid-rows-1 place-self-center  h-full">
-          <div class="flex col-start-1 col-span-2 my-auto">
-            <label id="burger" for="my-drawer-2" class="material-icons md-48 text-3xl hover:cursor-pointer">
-              menu
-            </label>
-            <div id="logo" class="text-4xl hover:text-highlight font-app_logo uppercase ml-4 my-auto align-text-bottom">
-              Sapiens
-            </div>
-          </div>
-          <div id="page"
-            class="invisible md:visible md:col-start-2 md:col-span-1 place-self-center font-bold text-main text-3xl">
-            Page
-          </div>
-          <div id="links"
-            class="col-start-2 place-self-end row-span-1 md:col-start-3 flex justify-end my-auto w-full md:w-1/2">
-            <div id="notifications" class="material-icons md-40 md:hover:text-highlight cursor-pointer">
-              notifications
-            </div>
-            <span class="material-icons md-40 md:hover:text-highlight cursor-pointer">
-              messages
-            </span>
-            <div class="material-icons md-40  md:hover:text-highlight cursor-pointer">
-              person
-            </div>
-            <div class="material-icons md-40 md:hover:text-highlight cursor-pointer">
-              logout
-            </div>
-          </div>
-        </div>
-      </nav>
-    </section>
-  </header>
-  <main id="main" class="h-screen bg-red-500 relative flex">
-    <div class="drawer">
-      <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
-      <div class="drawer-content flex flex-col items-center justify-center">
-        <!-- Page content here -->
-        Conteúdo
-  <!-- <%= @inner_content %> -->
-      </div>
-      <div class="drawer-side">
-        <label for="my-drawer-2" class="drawer-overlay lg:hidden"></label>
-          <ul class="p-4 overflow-y-auto w-80 bg-[#FFFFFF]">
-          <!-- Sidebar content here -->
-            <%=for entry <- [{"sync","Acerto de Matrícula"}, {"lock", "Avaliacoes" },{"casino", "Dados Acadêmicos" },
-              {"casino", "Dados Pessoais" }, {"library_books", "Biblioteca" }, {"task","Plano de estudo"}] do %>
-
-              <li>
-                <div
-                class="flex font-bold align-center pl-2 hover:cursor-pointer hover:bg-[#eeeee4] h-12 w-full border-b border-second-300 items-center hover:text-main-100">
-                <span class="material-icons mr-4">
-                  <%=elem(entry, 0)%>
-                </span>
-                <%=elem(entry, 1)%>
-                </div>
-              </li>
-              <%end%>
-        </ul>
-
-      </div>
-    </div>
-    <!-- <div id="menu" class="hidden w-[80%]   md:w-[25%] lg:w-[20%] h-full bg-second-100 border-r border-second-300"> -->
-    <!--   <div id="menu_header" class="hidden"> -->
-    <!--     <span id="unburger" class=" material-icons md-40 ml-0 hover:cursor-pointer">menu_open</span> -->
-    <!--     <span> Menu </span> -->
-    <!--   </div> -->
-    <!--   <div id="none" class="h-screen absolute top-0 left-[80%] bg-black w-full"> </div> -->
-    <!-- </div> -->
-  </main>
-  <footer>
-    <div id="footer" class="w-100 bg-main-200 text-white"> Footer </div>
-  </footer>
+<!-- <body style="background-color: #00ff00"> -->
+<body class="antialiased font-body" >
+  <%= @inner_content %>
 </body>
+
+<footer>
+  <h1> This is the footer </h1>
+</footer>
 
 </html>

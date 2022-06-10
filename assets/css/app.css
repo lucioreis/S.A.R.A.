@@ -1,11 +1,12 @@
 /* This file is for your main application CSS */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Just+Another+Hand&family=Nunito:wght@200&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Just+Another+Hand&family=Nunito:wght@200&family=Poppins:wght@300;500;700&family=Roboto:wght@300&display=swap');
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-
+.center {
+  @apply grid place-items-center; 
+}
 .material-icons.md-48 {
   font-size: 3rem;
 }
@@ -16,12 +17,36 @@
   height: 3rem;
   /* text-align: center; */
 }
-.material-icon.md-32 {
+.material-icons.md-32 {
   font-size: 2rem;
+  color: black;
+  /* -webkit-text-fill-color: white; /* Will override color (regardless of order) */ 
+  /* -webkit-text-stroke-width: 1px; */
+  /* -webkit-text-stroke-color: black; */
 }
 
+
+.material-icons-outlined.md-48 {
+  font-size: 3rem;
+}
+
+.material-icons-outlined.md-40 {
+  font-size: 2.5rem;
+  width: 3rem;
+  height: 3rem;
+  /* text-align: center; */
+}
+.material-icons-outlined.md-32 {
+  font-size: 2rem;
+  stroke-width: 1px
+}
 .font-heavy {
   font-weight: 900;
+}
+
+.flex-center {
+  justify-content: center;
+  align-items: center;
 }
 
 .material-symbols-outlined {
@@ -32,3 +57,7 @@
   'opsz' 48
 }
 
+.my-center {
+  display: grid;
+  place-items: center;
+}
