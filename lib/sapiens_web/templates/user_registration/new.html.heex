@@ -1,0 +1,90 @@
+<h1>Register</h1>
+
+<.form let={f} for={@changeset} action={Routes.user_registration_path(@conn, :create)}>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+    <% end %>
+
+      <%= label f, :email %>
+        <%= email_input f, :email, required: true %>
+        <%= error_tag f, :email %>
+
+        <%= label f, :password %>
+        <%= password_input f, :password, required: true %>
+        <%= error_tag f, :password %>
+
+        <div>
+                    <%= submit "Register" %>
+                  </div>
+</.form>
+
+<p>
+  <%= link "Log in" , to: Routes.user_session_path(@conn, :new) %> |
+    <%= link "Forgot your password?" , to: Routes.user_reset_password_path(@conn, :new) %>
+</p>
+<!-- component -->
+<!-- This is an example component -->
+<div class="h-screen font-sans login bg-cover">
+  <div class="container mx-auto h-full flex flex-1 justify-center items-center">
+    <div class="w-full max-w-lg">
+      <div class="leading-loose">
+        <.form let={f} for={@changeset} action={Routes.user_registration_path(@conn, :create)}
+          class="max-w-sm m-4 p-10 bg-white bg-opacity-25 rounded shadow-xl">
+
+          <%= if @changeset.action do %>
+            <div class="alert alert-danger">
+              <p>Oops, something went wrong! Please check the errors below.</p>
+            </div>
+            <% end %>
+
+              <p class="text-white text-center text-lg font-bold">LOGIN</p>
+              <%= label f, :email, class: "block text-sm text-white" %>
+                <%= email_input f, :email, required: true, placeholder: "Digite o E-Mail" %>
+                  <%= error_tag f, :email %>
+
+                    <%= label f, :password %>
+                      <%= password_input f, :password, required: true, arial_label: "password" ,
+                        placeholder: "Digite a Senha" ,
+                        class: "w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white" %>
+                        <%= error_tag f, :password %>
+
+                          <div class="mt-2">
+                            <label class="block  text-sm text-white">Senha</label>
+                            <input
+                              class="w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white"
+                              type="password" id="password"  arial-label="password"
+                              required>
+                          </div>
+
+                          <div class="mt-4 items-center flex justify-between">
+                            <button
+                              class="px-4 py-1 text-white font-light tracking-wider bg-gray-900 hover:bg-gray-800 rounded"
+                              type="submit">Entrar</button>
+                            <a class="inline-block right-0 align-baseline font-bold text-sm text-500 text-white hover:text-red-400"
+                              href="#">Esqueceu a senha ?</a>
+                          </div>
+                          <div class="text-center">
+                            <a
+                              class="inline-block right-0 align-baseline font-light text-sm text-500 hover:text-red-400">
+                              Criar uma conta
+                            </a>
+                          </div>
+
+        </.form>
+
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .login {
+    /*
+    background: url('https://tailwindadmin.netlify.app/dist/images/login-new.jpeg');
+  */
+    background: url('http://bit.ly/2gPLxZ4');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+</style>

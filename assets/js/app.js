@@ -21,22 +21,22 @@
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
-import {Socket} from "phoenix"
-import {LiveSocket} from "phoenix_live_view"
+import { Socket } from "phoenix"
+import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Alpine from "alpinejs"
 
 window.Alpine = Alpine;
 Alpine.start()
 
-let hooks  = {}
+let hooks = {}
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
-  params: {_csrf_token: csrfToken},
+  params: { _csrf_token: csrfToken },
   hooks: hooks,
   dom: {
-    onBeforeElUpdated (from, to) {
-      if (from._x_dataStack){
+    onBeforeElUpdated(from, to) {
+      if (from._x_dataStack) {
         window.Alpine.clone(from, to)
       }
     }
@@ -44,7 +44,7 @@ let liveSocket = new LiveSocket("/live", Socket, {
 });
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
 window.addEventListener("phx:page-loading-start", info => topbar.show())
 window.addEventListener("phx:page-loading-stop", info => topbar.hide())
 
@@ -62,9 +62,9 @@ const toggle_drawer = document.querySelector("#my-drawer-2")
 const menu = document.querySelector("#menu");
 
 burger.addEventListener('click', () => {
-  console.log({"toogle": toggle_drawer.checked})
+  console.log({ "toogle": toggle_drawer.checked })
   toggle_drawer.checked != toggle_drawer.checked
-  burger.innerHTML = toggle_drawer.checked ?  "menu": "menu_open"
+  burger.innerHTML = toggle_drawer.checked ? "menu" : "menu_open"
   // if (menu.classList.contains('hidden')) {
   //   menu.classList.remove('hidden');
   // } else {
@@ -74,3 +74,20 @@ burger.addEventListener('click', () => {
 })
 
 
+
+let defaultTransform = 0;
+function goNext() {
+  defaultTransform = defaultTransform - 398;
+  var slider = document.getElementById("slider");
+  if (Math.abs(defaultTransform) >= slider.scrollWidth / 1.7)
+    defaultTransform = 0;
+  slider.style.transform = "translateX(" + defaultTransform + "px)";
+}
+next.addEventListener("click", goNext);
+function goPrev() {
+  var slider = document.getElementById("slider");
+  if (Math.abs(defaultTransform) === 0) defaultTransform = 0;
+  else defaultTransform = defaultTransform + 398;
+  slider.style.transform = "translateX(" + defaultTransform + "px)";
+}
+prev.addEventListener("click", goPrev);

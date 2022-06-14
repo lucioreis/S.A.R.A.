@@ -1,4 +1,4 @@
-defmodule SapiensWeb.DadosAcademicosLive do
+defmodule SapiensWeb.PlanoEstudoLive do
   use SapiensWeb, :live_view
 
   @impl true

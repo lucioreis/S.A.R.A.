@@ -7,6 +7,7 @@
 .center {
   @apply grid place-items-center; 
 }
+
 .material-icons.md-48 {
   font-size: 3rem;
 }
@@ -24,7 +25,6 @@
   /* -webkit-text-stroke-width: 1px; */
   /* -webkit-text-stroke-color: black; */
 }
-
 
 .material-icons-outlined.md-48 {
   font-size: 3rem;
