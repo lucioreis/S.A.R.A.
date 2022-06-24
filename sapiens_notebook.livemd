@@ -63,14 +63,12 @@ turma
 #  hora = Enum.random([8, 10, 14, 16])
 #
 #  horario = %{
-#    [dia, hora] => %{codigo: turma.disciplina.codigo, local: "PVA 123"},
 #    [dia, hora + 1] => %{codigo: turma.disciplina.codigo, local: "PVA 123"},
-#    [dia + 1, hora] => %{codigo: turma.disciplina.codigo, local: "PVA 123"},
 #    [dia + 1, hora + 1] => %{codigo: turma.disciplina.codigo, local: "PVA 123"}
 #  }
 # end
-Sapiens.Estudante.set_turma(31, 39)
-Sapiens.Estudante.get_horarios(31)
+# Sapiens.Estudante.set_turma(31, 39)
+Repo.get_by(Disciplina, id: 24) |> Repo.preload(:turmas)
 ```
 
 ```elixir
@@ -81,5 +79,8 @@ Sapiens.Estudante.get_horarios(31)
 #            Enum.map(horario, fn key, value -> Map.put_new(acc, key, value) end)
 #          end)
 #
-horarios
+
+estudante = Repo.get_by(Estudante, id: 35)
+turma = Repo.get_by(Turma, id: 1) |> Repo.preload(:disciplina)
+Sapiens.Estudante.unset_historico(estudante.id, turma.disciplina.id, 0, 1)
 ```

@@ -9,7 +9,8 @@ defmodule Sapiens.Repo.Migrations.CreateHistoricos do
       add :nota, :decimal
       add :turma_pratica, :integer
       add :turma_teorica, :integer
-      add :disciplina__estudante_id, references(:disciplinas__estudantes)
+      add :disciplina_id, references(:disciplinas)
+      add :estudantes_id, references(:estudantes)
 
       timestamps()
     end

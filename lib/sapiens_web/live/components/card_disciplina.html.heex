@@ -9,7 +9,7 @@
         </span>
       </div>
       <div class="flex flex-col w-full justify-between relative p-2">
-        <%= if @disciplina.codigo in Map.keys(@matriculas) do %>
+        <%= if false do %>
           <div class="absolute inset text-xs text-base-100 bg-green-700 rounded-md p-1 opacity-75">
             Matriculado
           </div>
@@ -23,16 +23,16 @@
               <div class="flex flex-col justify-center">
                 <span class="font-bold center"> Vagas </span>
                 <span class="flex flex-col md:flex-row justify-around md:gap-2">
-                  <span> T: <%= Enum.reduce(Map.values(@disciplina.turmas), 0, fn turma, acc ->
-                      if(turma[:tipo] == :teorica) do
-                      turma.vagas + acc
+                  <span> T: <%= Enum.reduce(@disciplina.turmas, 0, fn turma, acc ->
+                      if(turma.tipo == "teorica") do
+                      turma.vagas_disponiveis + acc
                       else
                       acc
                       end
                       end) %> </span>
-                  <span> P: <%= Enum.reduce(Map.values(@disciplina.turmas), 0, fn turma, acc ->
-                      if(turma[:tipo] == :pratica) do
-                      turma.vagas + acc
+                  <span> P: <%= Enum.reduce(@disciplina.turmas, 0, fn turma, acc ->
+                      if(turma.tipo == "pratica") do
+                      turma.vagas_disponiveis + acc
                       else
                       acc
                       end
@@ -42,7 +42,7 @@
               <div class="flex flex-col justify-center">
                 <span class="font-bold center"> Carga Horária </span>
                 <span class="flex flex-col md:flex-row md:gap-2">
-                  <span> 60 horas </span>
+                  <span> <%=@disciplina.carga * 15 %> horas </span>
                 </span>
               </div>
             </div>
@@ -64,37 +64,49 @@
           <td> Vagas </td>
           <td> Acão </td>
         </tr>
-        <%= for {numero, turma} <- @disciplina.turmas do%>
-          <tr class={"odd:bg-base-300 even:bg-base-500 #{if(turma.vagas==0, do: "text-gray-500" , else: "" )}"}>
+        <%= for turma <- Enum.sort(@disciplina.turmas, &(&1.numero <= &2.numero )) do%>
+          <tr class={"odd:bg-base-300 even:bg-base-500 #{if(turma.vagas_disponiveis==0, do: "text-gray-500" , else: "" )}"}>
             <td>
-              <%= if(turma.tipo==:teorica, do: "T" , else: "P" ) %>
+              <%= if(turma.tipo=="teorica", do: "T" , else: "P" ) %>
             </td>
             <td>
               <%= turma.numero %>
             </td>
 
             <td>
-              <%= for horario <- turma.horario do %>
-                <%= horario %> <br>
-                  <% end %>
+              <%= Enum.reduce(
+                    turma.horario, 
+                    "", 
+                      fn {<<dia, hora>>,_value}, acc ->
+                          dia_to_str = %{1 => 'Seg', 2 => "Ter", 3 => "Qua", 4=>"Qui", 5=>"Sex", 6=>"Sab"}
+                          if(rem(hora,2)==0) do
+                            acc <> "#{dia_to_str[dia]}-#{hora}:00"  
+                          else
+                            acc <> "-#{hora+1}:00 "
+                          end
+                      end
+                  ) 
+              %>
             </td>
             <td>
-              <%= turma.vagas %>
+              <%= turma.vagas_disponiveis %>
             </td>
             <td>
-              <%= if @matriculas[@disciplina.codigo] !=turma.numero do %>
-                <div phx-target={@myself} phx-click={if((@disciplina.codigo in Map.keys(@matriculas)), do: "change" ,
-                  else: "add" )} phx-value-numero={numero} phx-value-codigo={@disciplina.codigo}
+              <%= if turma.numero not in for(turma <- @matriculas, do: turma.numero)  do %>
+                <div 
+                    phx-target={@myself} 
+                    phx-click={if(false, do: "change" ,
+                  else: "add" )} phx-value-numero={turma.numero} phx-value-codigo={@disciplina.codigo}
                   class="material-symbols-outlined cursor-pointer hover:text-highlight">
 
-                  <%= if(turma.vagas> 0) do
-                    if @matriculas[@disciplina.codigo], do: "sync", else: "add_circle"
+                  <%= if(turma.vagas_disponiveis > 0) do
+                    if turma.numero in for(turma <- @matriculas, do: turma.numero), do: "sync", else: "add_circle"
                     end
                     %>
 
                 </div>
                 <% else %>
-                  <div phx-target={@myself} phx-click="remove" phx-value-numero={numero} phx-value-codigo={@disciplina.codigo}> M
+                  <div phx-target={@myself} phx-click="remove" phx-value-numero={turma.numero} phx-value-codigo={@disciplina.codigo}> M
                   </div>
                   <% end %>
             </td>

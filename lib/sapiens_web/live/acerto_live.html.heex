@@ -51,14 +51,14 @@
   </div>
 
   <div class="md:h-screen md:overflow-scroll bg-base-200 md:w-1/2 mt-2 my-2 md:ml-2 md:mt-0 flex flex-col gap-y-2">
-    <%= for {codigo, disciplina} <- @disciplinas do %>
+    <%= for disciplina <- @disciplinas do %>
 
       <.live_component 
               @socket 
               module={SapiensWeb.Components.CardDisciplina} 
-              id={disciplina} 
+              id={disciplina.id} 
               disciplina={disciplina} 
-              codigo={codigo}
+              codigo={disciplina.codigo}
               matriculas={@matriculas}
       />
       <% end %>

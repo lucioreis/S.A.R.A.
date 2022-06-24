@@ -85,7 +85,9 @@ defmodule Sapiens.Estudante do
         {:error, "Estudante com id: #{id} não encontrado!"}
 
       estudante ->
-        {:ok, Repo.preload(estudante, :disciplinas).disciplinas}
+        {:ok,
+         Repo.preload(estudante, :disciplinas).disciplinas
+         |> Enum.map(fn disciplina -> Repo.preload(disciplina, :turmas) end)}
     end
   end
 
@@ -169,6 +171,47 @@ defmodule Sapiens.Estudante do
     end
   end
 
+  def set_historico(estudante, turma) do
+    turma = turma |> Repo.preload(:disciplina)
+
+    historico =
+      %Historico{}
+      |> Ecto.Changeset.change(%{
+        ano: 0,
+        conceito: "0",
+        semestre: 1,
+        nota: 0,
+        turma_pratica: 0,
+        turma_teorica: 0
+      })
+      |> Ecto.Changeset.put_assoc(:disciplina, turma.disciplina)
+      |> Ecto.Changeset.put_assoc(:estudante, estudante)
+
+    case Repo.insert(historico) do
+      {:ok, struct} -> {:ok, struct}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  def unset_historico(estudante_id, disciplina_id, ano, semestre) do
+    case Repo.get_by(
+           Historico,
+           estudante_id: estudante_id,
+           disciplina_id: disciplina_id,
+           ano: ano,
+           semestre: semestre
+         ) do
+      nil ->
+        {:error, "Histórico não existe"}
+
+      historico ->
+        case Repo.delete(historico) do
+          {:ok, struct} -> {:ok, struct}
+          {:error, changeset} -> {:error, changeset}
+        end
+    end
+  end
+
   @doc """
   Retorna os horarios de aula de um estudante
   %{
@@ -190,9 +233,11 @@ defmodule Sapiens.Estudante do
           Enum.reduce(horarios, %{}, fn elem, acc ->
             Enum.reduce(elem, acc, fn {key, value}, acc ->
               <<dia, hora>> = key
-              Map.put_new(acc, {dia, hora},%{codigo: value["codigo"], local: value["local"]})end )
+              Map.put_new(acc, {dia, hora}, %{codigo: value["codigo"], local: value["local"]})
+            end)
           end)
         }
+
       {:error, msg} ->
         {:error, msg}
     end

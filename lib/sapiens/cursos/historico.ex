@@ -30,7 +30,7 @@ defmodule Sapiens.Cursos.Historico do
   end
 
   @doc false
-  def changeset(historico, attrs) do
+  def changeset(historico, attrs \\ %{}) do
     historico
     |> cast(attrs, [:ano, :semestre, :nota, :conceito, :turma_pratica, :turma_teorica])
     |> validate_required([:ano, :semestre, :nota, :conceito, :turma_pratica, :turma_teorica])
