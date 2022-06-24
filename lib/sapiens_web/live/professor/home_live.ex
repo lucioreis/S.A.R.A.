@@ -5,12 +5,8 @@ defmodule SapiensWeb.Professor.HomeLive do
     socket =
       socket
       |> assign(menu_options: [
-        {"sync","Acerto de Matrícula", SapiensWeb.PageLive},
-        {"lock", "Avaliacoes", SapiensWeb.PageLive},
-        {"casino", "Dados Acadêmicos", SapiensWeb.PageLive },
-        {"casino", "Dados Pessoais", SapiensWeb.PageLive },
-        {"library_books", "Biblioteca" , SapiensWeb.PageLive}, 
-        {"task","Plano de estudo", SapiensWeb.PageLive},
+        {"lock", "Disciplinas", SapiensWeb.PageLive},
+        {"casino", "Alunos", SapiensWeb.PageLive },
         {"close", "Saír", SapiensWeb.PageLive}
       ])
       |> assign(name: "Home")

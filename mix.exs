@@ -51,6 +51,8 @@ defmodule Sapiens.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
+      {:elixir_sense, github: "elixir-lsp/elixir_sense"},
+      {:dialyxir, "~> 0.4", only: [:dev]},
     ]
   end
 

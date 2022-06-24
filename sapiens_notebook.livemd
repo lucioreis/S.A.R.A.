@@ -1,0 +1,85 @@
+# Sapiens Test
+
+## Section
+
+```elixir
+import Ecto.Changeset
+import Ecto.Query, only: [from: 2], warn: false
+
+alias Sapiens.Cursos.{
+  Estudante,
+  Professor,
+  Curso,
+  Disciplina,
+  Enem,
+  Historico,
+  Turma
+}
+
+alias Sapiens.Repo
+alias Sapiens.Cursos
+
+"""
+SELECT *
+  FROM public.disciplinas
+LEFT OUTER JOIN public.disciplinas__estudantes
+  ON disciplinas.ID = disciplinas__estudantes.disciplina_id
+LEFT OUTER JOIN estudantes
+  ON disciplinas__estudantes.estudante_id = estudantes.ID
+"""
+```
+
+```elixir
+# Ecto.Adapters.SQL.querdisciplinas")
+# Repo.insert(turma)
+Repo.all(
+  from(d in Disciplina,
+    join: c in Curso,
+    select: [d.id, d.codigo],
+    where: d.curso_id == c.id
+  )
+)
+
+Repo.all(
+  from(e in Estudante,
+    join: d in Disciplina,
+    select: [e.nome, d.codigo],
+    where: like(e.nome, "Joao%")
+  )
+)
+
+Repo.all(from(e in Estudante, where: like(e.nome, "Joao%"))) |> Repo.preload(:disciplinas)
+estudante = Repo.get_by(Estudante, id: 35)
+Repo.preload(estudante, :curso)
+turma = Repo.get_by(Turma, id: 1) |> Repo.preload([:estudantes, :disciplina, :professor])
+
+turma
+|> Ecto.Changeset.change()
+|> Ecto.Changeset.put_assoc(:estudantes, turma.estudantes ++ [Repo.get_by(Estudante, id: 35)])
+
+# for turma <- Repo.all(Turma) do
+#  turma = Repo.preload(turma, :disciplina)
+#  dia = Enum.random([1, 3, 5])
+#  hora = Enum.random([8, 10, 14, 16])
+#
+#  horario = %{
+#    [dia, hora] => %{codigo: turma.disciplina.codigo, local: "PVA 123"},
+#    [dia, hora + 1] => %{codigo: turma.disciplina.codigo, local: "PVA 123"},
+#    [dia + 1, hora] => %{codigo: turma.disciplina.codigo, local: "PVA 123"},
+#    [dia + 1, hora + 1] => %{codigo: turma.disciplina.codigo, local: "PVA 123"}
+#  }
+# end
+Sapiens.Estudante.set_turma(31, 39)
+Sapiens.Estudante.get_horarios(31)
+```
+
+```elixir
+{:ok, horarios} = Sapiens.Estudante.get_horarios(31)
+
+# new_horarios =
+#          Enum.reduce(horarios, %{}, fn horario, acc ->
+#            Enum.map(horario, fn key, value -> Map.put_new(acc, key, value) end)
+#          end)
+#
+horarios
+```

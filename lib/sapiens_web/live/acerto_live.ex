@@ -32,6 +32,9 @@ defmodule SapiensWeb.AcertoLive do
     }
   end
 
+  @spec add(integer, integer) :: integer
+  def add(a, b), do: a+b
+
   defp gen_disciplinas() do
     %{
       "INF 123": %{
@@ -132,6 +135,7 @@ defmodule SapiensWeb.AcertoLive do
       {4, 17} => %{codigo: "INF 789", local: "PVA 345"}
     }
   end
+
 
   defp gen_matriculado() do
     %{"INF 123" => 1, "INF 789" => 1}
