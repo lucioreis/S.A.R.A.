@@ -1,24 +1,26 @@
 # Sapiens Test
 
-## Section
-
 ```elixir
+Node.set_cookie(:phoenix)
+Node.connect(:phoenix@arch)
+
 import Ecto.Changeset
 import Ecto.Query, only: [from: 2], warn: false
 
-alias Sapiens.Cursos.{
+alias Sapiens.Repo
+
+alias Sapiens.{
   Estudante,
   Professor,
   Curso,
   Disciplina,
-  Enem,
-  Historico,
   Turma
 }
+```
 
-alias Sapiens.Repo
-alias Sapiens.Cursos
+## Section
 
+```elixir
 """
 SELECT *
   FROM public.disciplinas
@@ -27,60 +29,61 @@ LEFT OUTER JOIN public.disciplinas__estudantes
 LEFT OUTER JOIN estudantes
   ON disciplinas__estudantes.estudante_id = estudantes.ID
 """
+
+node()
+```
+
+### Teste get_turma_by_numero()
+
+```elixir
+{:ok, d} = Disciplina.by_id(2)
+{:ok, turma} = Disciplina.get_turma_by_numero(d, 2)
+```
+
+### Teste de inscrição em disciplina
+
+```elixir
+{:ok, estudante} = Estudante.by_id(2)
+{:ok, disciplina} = Disciplina.by_id(1)
+Estudante.remove_disciplina(estudante, disciplina)
+# Disciplina.matricular_estudante(disciplina, estudante, 2)
+```
+
+### Teste de desinscrição em disciplina
+
+```elixir
+{:ok, estudante} = Estudante.by_id(1)
+{:ok, disciplina} = Disciplina.by_id(1)
+
+p =
+  Repo.get_by(Sapiens.Cursos.Historico,
+    estudante_id: estudante.id,
+    disciplina_id: disciplina.id,
+    ano: 0,
+    semestre: 1
+  )
+
+from(t in Sapiens.Cursos.Turma,
+  join: et in Sapiens.Cursos.EstudanteTurma,
+  on: et.turma_id == t.id,
+  where: t.disciplina_id == 2
+)
+|> Repo.all()
 ```
 
 ```elixir
-# Ecto.Adapters.SQL.querdisciplinas")
-# Repo.insert(turma)
-Repo.all(
-  from(d in Disciplina,
-    join: c in Curso,
-    select: [d.id, d.codigo],
-    where: d.curso_id == c.id
-  )
-)
-
-Repo.all(
-  from(e in Estudante,
-    join: d in Disciplina,
-    select: [e.nome, d.codigo],
-    where: like(e.nome, "Joao%")
-  )
-)
-
-Repo.all(from(e in Estudante, where: like(e.nome, "Joao%"))) |> Repo.preload(:disciplinas)
-estudante = Repo.get_by(Estudante, id: 35)
-Repo.preload(estudante, :curso)
-turma = Repo.get_by(Turma, id: 1) |> Repo.preload([:estudantes, :disciplina, :professor])
-
-turma
-|> Ecto.Changeset.change()
-|> Ecto.Changeset.put_assoc(:estudantes, turma.estudantes ++ [Repo.get_by(Estudante, id: 35)])
-
-# for turma <- Repo.all(Turma) do
-#  turma = Repo.preload(turma, :disciplina)
-#  dia = Enum.random([1, 3, 5])
-#  hora = Enum.random([8, 10, 14, 16])
-#
-#  horario = %{
-#    [dia, hora + 1] => %{codigo: turma.disciplina.codigo, local: "PVA 123"},
-#    [dia + 1, hora + 1] => %{codigo: turma.disciplina.codigo, local: "PVA 123"}
-#  }
-# end
-# Sapiens.Estudante.set_turma(31, 39)
-Repo.get_by(Disciplina, id: 24) |> Repo.preload(:turmas)
+{:ok, es} = Estudante.by_id(1)
+{:ok, dis} = Disciplina.by_id(3)
+Disciplina.desmatricular_estudante(dis, es)
+Repo.get_by(Sapiens.Cursos.Turma, id: 1)
+Estudante.get_horarios(es)
 ```
 
 ```elixir
-{:ok, horarios} = Sapiens.Estudante.get_horarios(31)
+Repo.get_by(Sapiens.Cursos.EstudanteTurma,
+  estudante_id: 1,
+  turma_id: 1
+)
 
-# new_horarios =
-#          Enum.reduce(horarios, %{}, fn horario, acc ->
-#            Enum.map(horario, fn key, value -> Map.put_new(acc, key, value) end)
-#          end)
-#
-
-estudante = Repo.get_by(Estudante, id: 35)
-turma = Repo.get_by(Turma, id: 1) |> Repo.preload(:disciplina)
-Sapiens.Estudante.unset_historico(estudante.id, turma.disciplina.id, 0, 1)
+Repo.insert(%Sapiens.Cursos.EstudanteTurma{estudante_id: 1, turma_id: 1})
 ```

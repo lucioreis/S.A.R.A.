@@ -13,7 +13,6 @@ defmodule SapiensWeb.AvaliacoesLive do
         {"casino", "Dados Pessoais", SapiensWeb.DadosPessoalLive},
         {"library_books", "Biblioteca", SapiensWeb.PageLive }, 
         {"task","Plano de estudo", SapiensWeb.PlanoEstudoLive},
-        {"close", "Saír", SapiensWeb.PageLive}
         ]
       )
       |> assign(grades: get_grades())

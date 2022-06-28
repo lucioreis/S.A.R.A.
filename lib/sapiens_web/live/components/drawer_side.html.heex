@@ -1,0 +1,41 @@
+<div class="drawer drawer-mobile">
+    <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+
+    <div class="drawer-content flex flex-col bg-base-100">
+      <!-- Page content here -->
+      <!-- <label for="my-drawer-2" class="btn btn-primary drawer-button">Open drawer</label> -->
+      <%= @inner_content %>
+    </div>
+    <div class="drawer-side">
+      <label for="my-drawer-2" class="drawer-overlay"></label>
+      <ul class="p-2 overflow-y-auto w-[15rem] bg-base-100 text-gray-700 border-base-500 border-r">
+        <%= if @menu_options do %>
+          <!-- Sidebar content here -->
+          <%= for menu_option <- @menu_options do %>
+            <li>
+              <%= live_patch to: Routes.live_path(@socket, elem(menu_option, 2)) do %>
+                <span
+                  class="flex hover:bg-highlight-light hover:text-base-100 justify-start items-center text-1xl border-b border-primary py-2">
+                  <span class="material-icons">
+                    <%= elem(menu_option, 0) %>
+                  </span> <span class="ml-2 font-bold">
+                    <%= elem(menu_option, 1) %>
+                  </span>
+                </span>
+                <% end %>
+            </li>
+            <% end %>
+              <% end %>
+                <li>
+                  <%= live_redirect to: Routes.page_path(@socket, :index) do %>
+                    <span
+                      class="flex hover:bg-highlight-light hover:text-base-100 justify-start items-center text-1xl border-b border-primary py-2">
+                      <span class="material-icons"> close </span> <span class="ml-2 font-bold"> Saír </span>
+                    </span>
+                  <% end %>
+                </li>
+      </ul>
+    </div>
+
+  </div>
+

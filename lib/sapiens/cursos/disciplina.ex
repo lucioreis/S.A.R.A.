@@ -30,9 +30,8 @@ defmodule Sapiens.Cursos.Disciplina do
 
     timestamps()
 
-    many_to_many :estudantes, Sapiens.Cursos.Estudante, join_through: Sapiens.Cursos.DisciplinaEstudante
+    many_to_many :estudantes, Sapiens.Cursos.Estudante, join_through: Sapiens.Cursos.Historico
 
-    has_many :historicos, Sapiens.Cursos.Historico
     has_many :turmas, Sapiens.Cursos.Turma
 
     belongs_to :curso, Sapiens.Cursos.Curso

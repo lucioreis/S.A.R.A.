@@ -6,5 +6,7 @@ defmodule Sapiens.Repo.Migrations.CreateEstudantesTurmasTable do
       add :estudante_id, references(:estudantes)
       add :turma_id, references(:turmas)
     end
+
+    create unique_index(:estudantes__turmas, [:estudante_id, :turma_id])
   end
 end

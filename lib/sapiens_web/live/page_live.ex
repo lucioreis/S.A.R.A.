@@ -4,9 +4,10 @@ defmodule SapiensWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    id = 31
 
-    {:ok, horario} = Estudante.get_horarios(id)
+    id = 2
+    {:ok, estudante} = Estudante.by_id(id)
+    {:ok, horario} = Estudante.get_horarios(estudante)
 
     socket = 
       socket
@@ -20,7 +21,8 @@ defmodule SapiensWeb.PageLive do
       ])
       |> assign(name: "Home")
       |> assign(horario: horario)
-      |> assign(id: id)
+      |> assign(estudante: estudante)
+      |> assign(estudante_id: id)
 
     {:ok, socket}
   end

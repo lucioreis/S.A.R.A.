@@ -1,6 +1,8 @@
 defmodule SapiensWeb.AcertoLive do
   use SapiensWeb, :live_view
-  alias Sapiens.Estudante
+  alias Sapiens.Estudante, warn: false
+  alias Sapiens.Disciplina, warn: false
+  alias Sapiens.Repo, warn: false
 
   @impl true
   def mount(_params, _session, socket) do
@@ -13,18 +15,26 @@ defmodule SapiensWeb.AcertoLive do
           {"casino", "Dados Acadêmicos", SapiensWeb.DadosAcademicosLive},
           {"casino", "Dados Pessoais", SapiensWeb.DadosPessoalLive},
           {"library_books", "Biblioteca", SapiensWeb.PageLive},
-          {"task", "Plano de estudo", SapiensWeb.PlanoEstudoLive},
-          {"close", "Saír", SapiensWeb.PageLive}
+          {"task", "Plano de estudo", SapiensWeb.PlanoEstudoLive}
         ]
       )
 
-    id = 35
-    {:ok, disciplinas} = Estudante.get_disciplinas(id)
-    {:ok, horario} = Estudante.get_horarios(id)
-    {:ok, matriculas} = Estudante.get_turmas(id)
+    {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(%{"id" => id}, _uri, socket) do
+    socket =
+      socket
+      |> assign(:estudante_id, String.to_integer(id))
+
+    {:ok, estudante} = Estudante.by_id(socket.assigns.estudante_id)
+    {:ok, disciplinas} = Estudante.get_disciplinas(estudante)
+    {:ok, horario} = Estudante.get_horarios(estudante)
+    {:ok, matriculas} = Estudante.get_turmas_matriculado(estudante)
 
     {
-      :ok,
+      :noreply,
       socket
       |> assign(disciplinas: disciplinas)
       |> assign(horario: horario)
@@ -33,6 +43,35 @@ defmodule SapiensWeb.AcertoLive do
     }
   end
 
-  @spec add(integer, integer) :: integer
-  def add(a, b), do: a + b
+  @impl true
+  def handle_info({:updated_horario, %{horario: horario}}, socket) do
+    {:noreply, assign(socket, horario: horario)}
+  end
+
+  @impl true
+  def handle_info({:mat, %{disciplina_id: disciplina_id, sender: sender}}, socket) do
+    if sender == self() do
+      {:noreply, socket}
+      # require IEx; IEx.pry
+    else
+      {:ok, estudante} = Estudante.by_id(socket.assigns.estudante_id)
+      {:ok, horario} = Estudante.get_horarios(estudante)
+      {:ok, matriculas} = Estudante.get_turmas_matriculado(estudante)
+
+      socket =
+        socket
+        |> assign(horario: horario)
+        |> assign(matricula: matriculas)
+
+      send_update(
+        SapiensWeb.Components.CardDisciplina,
+        id: disciplina_id,
+        disciplina_id: disciplina_id,
+        estudante_id: socket.assigns.estudante_id,
+        matriculas: socket.assigns.matriculas
+      )
+
+      {:noreply, socket}
+    end
+  end
 end

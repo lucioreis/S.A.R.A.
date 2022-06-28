@@ -1,5 +1,6 @@
 defmodule Sapiens.Estudante do
   import Ecto.Query, only: [from: 2], warn: false
+  import Sapiens.Utils, warn: false
 
   alias Sapiens.Cursos.{
           Estudante,
@@ -44,7 +45,7 @@ defmodule Sapiens.Estudante do
   @doc """
   Pega o estudante pelo seu id
   ## Examples
-    iex> get_by_id(1)
+    iex> by_id(1)
     {:ok,
       %Estudante{
         id: 1
@@ -52,10 +53,9 @@ defmodule Sapiens.Estudante do
       }
     }
   """
-  @spec get_by_id(:integer) :: {:ok, Estudante} | {:error, String.t()}
-  def get_by_id(id) do
+  def by_id(id) do
     case Repo.get_by(Estudante, id: id) do
-      nil -> {:error, "Estudante não encontrado!"}
+      nil -> {:error, "Estudante com id: #{id} não encontrado!"}
       estudante -> {:ok, estudante}
     end
   end
@@ -78,24 +78,20 @@ defmodule Sapiens.Estudante do
       ]
     }
   """
-  @spec get_disciplinas(integer) :: {:error, String.t()} | {:ok, [[] | Disciplina]}
-  def get_disciplinas(id) do
-    case Repo.get_by(Estudante, id: id) do
-      nil ->
-        {:error, "Estudante com id: #{id} não encontrado!"}
-
-      estudante ->
-        {:ok,
-         Repo.preload(estudante, :disciplinas).disciplinas
-         |> Enum.map(fn disciplina -> Repo.preload(disciplina, :turmas) end)}
-    end
+  @spec get_disciplinas(Estudante.t()) :: {:error, String.t()} | {:ok, [[] | Disciplina]}
+  def get_disciplinas(estudante) do
+    {
+      :ok,
+      Repo.preload(estudante, :disciplinas).disciplinas
+      |> Enum.map(fn disciplina -> Repo.preload(disciplina, :turmas) end)
+    }
   end
 
   @doc """
   Retorna uma lista de turmas em que o estudante está matriculado
 
   ## Examples
-    iex> get_turmas_matriculado(1)
+    iex> get_turmas_matriculado(Estudante)
     [
       %Turma{
         horario: %{2 => [10,11]}
@@ -110,81 +106,28 @@ defmodule Sapiens.Estudante do
     ]
       
   """
-  @spec get_turmas(integer) :: {:error, String.T} | {:ok, [[] | Turma]}
-  def get_turmas(id) when is_integer(id) do
-    case Repo.get_by(Estudante, id: id) do
-      nil ->
-        {:error, "Estudante com id: #{id} não encontrado!"}
-
-      estudante ->
-        estudante = estudante |> Repo.preload(:turmas)
-        {:ok, estudante.turmas}
-    end
+  @spec get_turmas_matriculado(Estudante.t()) :: {:error, String.T} | {:ok, [[] | Turma]}
+  def get_turmas_matriculado(estudante) do
+    estudante = estudante |> Repo.preload(:turmas)
+    {:ok, estudante.turmas}
   end
 
-  @doc """
-  Registra o estudante em uma turma
-
-  ## Examples 
-    iex>Estudante.set_turma(id_estudante, %Turma{numero: 1, disciplina: %Disciplina{codigo: "INF 321"}})
-    {:ok, %Estudante{}}
-  """
-  # @spec set_turma(:integer, Turma) :: {:ok, String.t}|{:error, String.t}
-  def set_turma(id_estudante, %Turma{} = turma) do
-    case get_by_id(id_estudante) do
-      {:ok, estudante} ->
-        change =
-          turma
-          |> Repo.preload([:estudantes, :disciplina, :professor])
-          |> Ecto.Changeset.change()
-          |> Ecto.Changeset.put_assoc(:estudantes, turma.estudantes ++ [estudante])
-
-        case Repo.update(change) do
-          {:ok, struct} -> {:ok, struct}
-          {:error, changeset} -> {:error, changeset}
-        end
-
-      {:error, msg} ->
-        {:error, msg}
-    end
-  end
-
-  def set_turma(id_estudante, turma_id) do
-    turma =
-      Turma
-      |> Repo.get_by(id: turma_id)
-      |> Repo.preload(:estudantes)
-
-    set_turma(id_estudante, turma)
-  end
-
-  def unset_turma(id_estudante, turma_id) when turma_id |> is_integer do
-    case Repo.get_by(Sapiens.Cursos.EstudanteTurma, estudante_id: id_estudante, turma_id: turma_id) do
-      nil ->
-        {:error, "Relation between Student and Class doesn't exist!"}
-
-      estudante_turma ->
-        case Repo.delete(estudante_turma) do
-          {:ok, _} -> {:ok, "Realtion deleted"}
-          {:error, msg} -> {:error, msg}
-        end
-    end
-  end
-
-  def set_historico(estudante, turma) do
-    turma = turma |> Repo.preload(:disciplina)
+  def add_disciplina(estudante, disciplina, ano \\ 0, semestre \\ nil) do
+    semestre = semestre || semestre_atual()
 
     historico =
-      %Historico{}
-      |> Ecto.Changeset.change(%{
-        ano: 0,
-        conceito: "0",
-        semestre: 1,
-        nota: 0,
-        turma_pratica: 0,
-        turma_teorica: 0
-      })
-      |> Ecto.Changeset.put_assoc(:disciplina, turma.disciplina)
+      Historico.changeset(
+        %Historico{},
+        %{
+          ano: ano,
+          conceito: "0",
+          semestre: semestre,
+          nota: 0,
+          turma_pratica: 0,
+          turma_teorica: 0
+        }
+      )
+      |> Ecto.Changeset.put_assoc(:disciplina, disciplina)
       |> Ecto.Changeset.put_assoc(:estudante, estudante)
 
     case Repo.insert(historico) do
@@ -193,11 +136,13 @@ defmodule Sapiens.Estudante do
     end
   end
 
-  def unset_historico(estudante_id, disciplina_id, ano, semestre) do
+  def remove_disciplina(estudante, disciplina, ano \\ 0, semestre \\ nil) do
+    semestre = semestre || semestre_atual()
+
     case Repo.get_by(
            Historico,
-           estudante_id: estudante_id,
-           disciplina_id: disciplina_id,
+           estudante_id: estudante.id,
+           disciplina_id: disciplina.id,
            ano: ano,
            semestre: semestre
          ) do
@@ -205,10 +150,38 @@ defmodule Sapiens.Estudante do
         {:error, "Histórico não existe"}
 
       historico ->
+
+        from(t in Sapiens.Cursos.Turma,
+          join: et in Sapiens.Cursos.EstudanteTurma,
+          on: et.turma_id == t.id,
+          where: t.disciplina_id == ^disciplina.id,
+          where: et.estudante_id == ^estudante.id
+        )
+        |> Repo.delete_all()
+
         case Repo.delete(historico) do
           {:ok, struct} -> {:ok, struct}
           {:error, changeset} -> {:error, changeset}
         end
+    end
+  end
+
+  def get_historico(estudante, disciplina, ano \\ 0, semestre \\ 0) do
+    semestre = if semestre == 0, do: semestre_atual(), else: semestre
+    ano = if ano == 0, do: ano_atual(), else: ano
+
+    case Repo.get_by(Historico,
+           estudante_id: estudante.id,
+           disciplina_id: disciplina.id,
+           ano: ano,
+           semestre: semestre
+         ) do
+      nil ->
+        {:error,
+         "Estudante com id=#{estudante.id} não possui histórico na disciplina com id=#{disciplina.id}"}
+
+      historico ->
+        {:ok, historico}
     end
   end
 
@@ -217,29 +190,22 @@ defmodule Sapiens.Estudante do
   %{
     {dia:[1-7], hora:[7-22]} => %{codigo: "XXX NNN", local: "XXX NNN"}
     dia => hora => %{codigo, local]
-  }
+  %{"3" => [14, 15], "4" => [14, 15], "local" => "PVA 199"}
   """
-  def get_horarios(id_estudante) do
-    case get_turmas(id_estudante) do
-      {:ok, turmas} ->
-        horarios =
-          for turma <- turmas do
-            turma = Repo.preload(turma, :disciplina)
-            turma.horario
-          end
+  def get_horarios(estudante) do
+    turmas = Enum.map(Repo.preload(estudante, :turmas).turmas, &Repo.preload(&1, :disciplina))
 
-        {
-          :ok,
-          Enum.reduce(horarios, %{}, fn elem, acc ->
-            Enum.reduce(elem, acc, fn {key, value}, acc ->
-              <<dia, hora>> = key
-              Map.put_new(acc, {dia, hora}, %{codigo: value["codigo"], local: value["local"]})
-            end)
-          end)
-        }
-
-      {:error, msg} ->
-        {:error, msg}
-    end
+    {:ok,
+     Enum.reduce(
+       turmas,
+       %{},
+       fn turma, horarios ->
+         Enum.reduce(
+           Sapiens.Turma.get_horarios(turma),
+           horarios,
+           fn {key, value}, acc -> Map.put(acc, key, value) end
+         )
+       end
+     )}
   end
 end

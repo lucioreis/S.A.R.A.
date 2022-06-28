@@ -7,5 +7,8 @@ defmodule Sapiens.Repo.Migrations.CreateDisciplinasProfessoresTable do
       add :professor_id, references(:professores)
     end
 
+
+    create unique_index(:disciplinas__professores, [:disciplina_id, :professor_id])
+
   end
 end

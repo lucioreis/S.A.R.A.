@@ -60,7 +60,8 @@ config :sapiens, SapiensWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/sapiens_web/(live|views)/.*(ex)$",
-      ~r"lib/sapiens_web/templates/.*(eex)$"
+      ~r"lib/sapiens_web/templates/.*(eex)$",
+      ~r"lib/sapiens_web/live/components/.*(ex)$"
     ]
   ]
 

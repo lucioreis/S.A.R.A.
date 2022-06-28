@@ -5,6 +5,7 @@ defmodule Sapiens.Cursos.EstudanteTurma do
   schema "estudantes__turmas" do
     belongs_to :estudante, Sapiens.Cursos.Estudante
     belongs_to :turma, Sapiens.Cursos.Turma
+    belongs_to :disciplina, Sapiens.Cursos.Disciplina
 
   end
 

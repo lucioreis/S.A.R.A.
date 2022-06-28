@@ -24,6 +24,7 @@ defmodule SapiensWeb.Router do
     get("/", PageController, :index)
     live("/home", PageLive)
     live("/acerto", AcertoLive)
+    live("/acerto/:id", AcertoLive)
     live("/academicos", DadosAcademicosLive)
     live("/pessoal", DadosPessoalLive)
     live("/plano-estudo", PlanoEstudoLive)

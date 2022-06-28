@@ -1,8 +1,8 @@
-defmodule SapiensWeb.Components.Navbar do
+defmodule SapiensWeb.Components.DrawerSide do
   use SapiensWeb, :live_component
-
+     
   @impl true
   def mount(socket) do
-    {:ok, socket}
+    {:ok, :socket}
   end
 end

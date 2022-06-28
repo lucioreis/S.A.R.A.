@@ -1,7 +1,8 @@
-<div class="flex flex-col md:flex-row my-2">
+<div class="flex flex-col md:flex-row m-2">
   <div class=" md:w-1/2 md:h-screen">
+    <.live_component module={SapiensWeb.Live.Components.AcertoDetails} id={1} />
 
-    <div class="mt-2">
+    <div class="">
 
       <div class="text-xs overflow-y-scroll">
         <table class="p-0 w-full text-center">
@@ -28,10 +29,10 @@
                   <td>
                     <%= if @horario[{day,time}] do %>
                       <p class="font-bold">
-                        <%= @horario[{day,time}].codigo %>
+                        <%= @horario[{day, time}]["codigo"] %>
                       </p>
                       <p class="font-light text-xs">
-                        <%= @horario[{day, time}].local %>
+                        <%= @horario[{day, time}]["local"] %>
                       </p>
                     <% else %>
                       <p class="text-gray-400"> -- </p>
@@ -57,7 +58,8 @@
               @socket 
               module={SapiensWeb.Components.CardDisciplina} 
               id={disciplina.id} 
-              disciplina={disciplina} 
+              estudante_id={@estudante_id}
+              disciplina_id={disciplina.id} 
               codigo={disciplina.codigo}
               matriculas={@matriculas}
       />

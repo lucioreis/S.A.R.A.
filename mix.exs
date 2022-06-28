@@ -20,7 +20,7 @@ defmodule Sapiens.MixProject do
   def application do
     [
       mod: {Sapiens.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
 
@@ -53,6 +53,7 @@ defmodule Sapiens.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:elixir_sense, github: "elixir-lsp/elixir_sense"},
       {:dialyxir, "~> 0.4", only: [:dev]},
+      {:ecto_psql_extras, "~> 0.6"},
     ]
   end
 

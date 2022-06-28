@@ -27,10 +27,10 @@
                     <td>
                       <%= if @horario[{day,time}] do %>
                         <p class="font-bold">
-                          <%= @horario[{day,time}].codigo %>
+                          <%= @horario[{day,time}]["codigo"] %>
                         </p>
                         <p class="font-light text-xs">
-                          <%= @horario[{day, time}].local %>
+                          <%= @horario[{day, time}]["local"] %>
                         </p>
                         <% else %>
                           <p class="text-gray-400"> -- </p>
