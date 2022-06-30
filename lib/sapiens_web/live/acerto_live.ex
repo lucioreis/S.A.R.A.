@@ -5,19 +5,42 @@ defmodule SapiensWeb.AcertoLive do
   alias Sapiens.Repo, warn: false
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(%{"id" => id}, _session, socket) do
     socket =
       socket
       |> assign(
         menu_options: [
-          {"sync", "Acerto de Matrícula", SapiensWeb.AcertoLive},
-          {"lock", "Avaliacoes", SapiensWeb.AvaliacoesLive},
-          {"casino", "Dados Acadêmicos", SapiensWeb.DadosAcademicosLive},
-          {"casino", "Dados Pessoais", SapiensWeb.DadosPessoalLive},
-          {"library_books", "Biblioteca", SapiensWeb.PageLive},
-          {"task", "Plano de estudo", SapiensWeb.PlanoEstudoLive}
+          {"sync", "Acerto de Matrícula", &Routes.live_path(&1, SapiensWeb.AcertoLive, id: id)},
+          {"lock", "Avaliacoes", &Routes.live_path(&1, SapiensWeb.AvaliacoesLive, id: id)},
+          {"casino", "Dados Acadêmicos",
+           &Routes.live_path(&1, SapiensWeb.DadosAcademicosLive, id: id)},
+          {"casino", "Dados Pessoais",
+           &Routes.live_path(&1, SapiensWeb.DadosPessoalLive, id: id)},
+          {"library_books", "Biblioteca", &Routes.live_path(&1, SapiensWeb.PageLive, id: id)},
+          {"task", "Plano de estudo", &Routes.live_path(&1, SapiensWeb.PlanoEstudoLive, id: id)}
         ]
       )
+
+    socket =
+      socket
+      |> assign(:estudante_id, String.to_integer(id))
+      |> assign(:user_id, String.to_integer(id))
+
+    {:ok, estudante} = Estudante.by_id(socket.assigns.estudante_id)
+    {:ok, disciplinas} = Estudante.get_disciplinas(estudante)
+    {:ok, horario} = Estudante.get_horarios(estudante)
+    {:ok, matriculas} = Estudante.get_turmas_matriculado(estudante)
+    matriculas = for m <- matriculas, do: Repo.preload(m, :disciplina)
+    IO.inspect(matriculas, label: "MATRICULAS")
+
+    {
+      :noreply,
+      socket
+      |> assign(disciplinas: disciplinas)
+      |> assign(horario: horario)
+      |> assign(matriculas: matriculas)
+      |> assign(name: "Acerto")
+    }
 
     {:ok, socket}
   end
@@ -32,6 +55,8 @@ defmodule SapiensWeb.AcertoLive do
     {:ok, disciplinas} = Estudante.get_disciplinas(estudante)
     {:ok, horario} = Estudante.get_horarios(estudante)
     {:ok, matriculas} = Estudante.get_turmas_matriculado(estudante)
+    matriculas = for m <- matriculas, do: Repo.preload(m, :disciplina)
+    IO.inspect(matriculas, label: "MATRICULAS")
 
     {
       :noreply,
@@ -44,8 +69,11 @@ defmodule SapiensWeb.AcertoLive do
   end
 
   @impl true
-  def handle_info({:updated_horario, %{horario: horario}}, socket) do
-    {:noreply, assign(socket, horario: horario)}
+  def handle_info({:updated_horario, %{horario: horario, matriculas: matriculas}}, socket) do
+    {:noreply,
+     socket
+     |> assign(matriculas: matriculas)
+     |> assign(horario: horario)}
   end
 
   @impl true
@@ -57,6 +85,7 @@ defmodule SapiensWeb.AcertoLive do
       {:ok, estudante} = Estudante.by_id(socket.assigns.estudante_id)
       {:ok, horario} = Estudante.get_horarios(estudante)
       {:ok, matriculas} = Estudante.get_turmas_matriculado(estudante)
+      matriculas = for m <- matriculas, do: Repo.preload(m, :disciplina)
 
       socket =
         socket

@@ -24,7 +24,6 @@ defmodule SapiensWeb.Router do
     get("/", PageController, :index)
     live("/home", PageLive)
     live("/acerto", AcertoLive)
-    live("/acerto/:id", AcertoLive)
     live("/academicos", DadosAcademicosLive)
     live("/pessoal", DadosPessoalLive)
     live("/plano-estudo", PlanoEstudoLive)
@@ -36,8 +35,8 @@ defmodule SapiensWeb.Router do
     pipe_through(:browser)
 
     live("/", Professor.HomeLive)
-    live("/disciplinas/:id", Professor.DisciplinasLive)
-    live("/alunos/:id", Professor.AlunosLive, :index)
+    live("/disciplinas", Professor.DisciplinasLive)
+    live("/alunos", Professor.AlunosLive, :index)
     live("/alunos/:id/detalhes", Professor.AlunosLive, :show)
   end
 

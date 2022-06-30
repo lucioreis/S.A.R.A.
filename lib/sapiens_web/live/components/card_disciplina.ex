@@ -138,8 +138,9 @@ defmodule SapiensWeb.Components.CardDisciplina do
         {:ok, disciplina} = Disciplina.by_id(disciplina_id, preload: :turmas)
         {:ok, horario} = Estudante.get_horarios(estudante)
         {:ok, matriculas} = Estudante.get_turmas_matriculado(estudante)
+         matriculas = for m <- matriculas, do: Repo.preload(m, :disciplina) 
 
-        send(self(), {:updated_horario, %{horario: horario}})
+        send(self(), {:updated_horario, %{horario: horario, matriculas: matriculas}})
 
         socket
         |> assign(turma: turma)

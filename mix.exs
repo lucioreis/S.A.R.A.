@@ -54,6 +54,7 @@ defmodule Sapiens.MixProject do
       {:elixir_sense, github: "elixir-lsp/elixir_sense"},
       {:dialyxir, "~> 0.4", only: [:dev]},
       {:ecto_psql_extras, "~> 0.6"},
+      {:surface, "~> 0.7.4"}
     ]
   end
 

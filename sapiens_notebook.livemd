@@ -72,9 +72,10 @@ from(t in Sapiens.Cursos.Turma,
 ```
 
 ```elixir
-{:ok, es} = Estudante.by_id(1)
+{:ok, es} = Estudante.by_id(2)
 {:ok, dis} = Disciplina.by_id(3)
-Disciplina.desmatricular_estudante(dis, es)
+Estudante.add_disciplina(es, dis)
+# Disciplina.desmatricular_estudante(dis, es)
 Repo.get_by(Sapiens.Cursos.Turma, id: 1)
 Estudante.get_horarios(es)
 ```

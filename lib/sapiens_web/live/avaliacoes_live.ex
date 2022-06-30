@@ -2,22 +2,28 @@ defmodule SapiensWeb.AvaliacoesLive do
   use SapiensWeb, :live_view
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(%{"id" => id}, _session, socket) do
+
+    id = String.to_integer(id)
     socket =
       socket
+
       |> assign(
         menu_options: [
-        {"sync","Acerto de Matrícula", SapiensWeb.AcertoLive},
-        {"lock", "Avaliacoes", SapiensWeb.AvaliacoesLive},
-        {"casino", "Dados Acadêmicos", SapiensWeb.DadosAcademicosLive },
-        {"casino", "Dados Pessoais", SapiensWeb.DadosPessoalLive},
-        {"library_books", "Biblioteca", SapiensWeb.PageLive }, 
-        {"task","Plano de estudo", SapiensWeb.PlanoEstudoLive},
+          {"sync", "Acerto de Matrícula", &Routes.live_path(&1, SapiensWeb.AcertoLive, id: id)},
+          {"lock", "Avaliacoes", &Routes.live_path(&1, SapiensWeb.AvaliacoesLive, id: id)},
+          {"casino", "Dados Acadêmicos",
+           &Routes.live_path(&1, SapiensWeb.DadosAcademicosLive, id: id)},
+          {"casino", "Dados Pessoais",
+           &Routes.live_path(&1, SapiensWeb.DadosPessoalLive, id: id)},
+          {"library_books", "Biblioteca", &Routes.live_path(&1, SapiensWeb.PageLive, id: id)},
+          {"task", "Plano de estudo", &Routes.live_path(&1, SapiensWeb.PlanoEstudoLive, id: id)}
         ]
-      )
-      |> assign(grades: get_grades())
-      |> assign(name: "Avaliacões")
-
+      ) |> assign(name: "Avaliações")
+        |> assign(estudante_id: id)
+        |> assign(user_id: id)
+        |> assign(grades: get_grades())
+      
     {:ok, socket}
   end
 
@@ -31,6 +37,7 @@ defmodule SapiensWeb.AvaliacoesLive do
         exame_final = if total > 40 and total < 60, do: Enum.random(10..100), else: 0
         nota_final = if exame_final > 2, do: div(exame_final+total, 2), else: total
         conceito = if(f_teorica >= 16 or f_pratica >= 16, do: "L", else: nota_final)
+        timestamp = Enum.random([hora: Enum.random(1..12), minuto: Enum.random(1..50), dia: Enum.random(1..23)])
         {
           nome,
           f_pratica,
@@ -39,7 +46,8 @@ defmodule SapiensWeb.AvaliacoesLive do
           total,
           exame_final,
           nota_final,
-          conceito
+          conceito,
+          timestamp
         }
     end
 

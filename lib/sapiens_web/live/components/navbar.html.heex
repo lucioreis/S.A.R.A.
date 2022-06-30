@@ -6,7 +6,7 @@
             menu
           </label>
           <div id="logo" class="text-4xl text-highlight font-app_logo uppercase mt-2 ml-4">
-            <%= live_redirect to: Routes.live_path(@socket,SapiensWeb.PageLive) do  %>
+            <%= live_redirect to: Routes.live_path(@socket,SapiensWeb.PageLive, id: @user_id) do  %>
                 Sapiens
               <%end%>
           </div>

@@ -1,5 +1,5 @@
 <header>
-  <.live_component module={SapiensWeb.Components.Navbar} id={:navbar_2} name={@name} />
+  <.live_component module={SapiensWeb.Components.Navbar} id={:navbar_2} name={@name} user_id={@user_id} class="shadow-black shadow-lg" />
 </header>
 <main id="main" class="bg-base-100">
   <div class="drawer drawer-mobile">
@@ -17,7 +17,7 @@
           <!-- Sidebar content here -->
           <%= for menu_option <- @menu_options do %>
             <li>
-              <%= live_patch to: Routes.live_path(@socket, elem(menu_option, 2)) do %>
+              <%= live_patch to: elem(menu_option, 2).(@socket) do %>
                 <span
                   class="flex hover:bg-highlight-light hover:text-base-100 justify-start items-center text-1xl border-b border-primary py-2">
                   <span class="material-icons">
