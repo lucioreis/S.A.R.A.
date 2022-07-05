@@ -1,4 +1,4 @@
-defmodule Sapiens.Professor do
+defmodule Sapiens.Historicos do
   import Ecto.Query, only: [from: 2], warn: false
 
   alias Sapiens.Cursos.{
@@ -15,9 +15,9 @@ defmodule Sapiens.Professor do
   alias Sapiens.Repo, warn: false
 
   def by_id(id) do
-    case Repo.get_by(Professor, id: id) do
-      nil -> {:error, "Professor não encontrado: id=#{id}"}
-      professor -> {:ok, professor}
+    case Repo.get_by(Hitorico, id: id) do
+      nil -> {:error, "Disciplina não encontrada: id=#{id}"}
+      historico -> {:ok, historico}
     end
   end
 end

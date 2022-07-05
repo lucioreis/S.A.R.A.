@@ -5,7 +5,4 @@ defmodule SapiensWeb.Components.Calendar do
   def mount(socket) do
     {:ok, socket}
   end
-
 end
-
-

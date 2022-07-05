@@ -13,9 +13,10 @@ defmodule Sapiens.Repo.Migrations.CreateHistoricos do
       add :estudante_id, references(:estudantes), null: false, primary_key: true
 
       timestamps()
-
     end
 
-    create unique_index(:historicos, [:ano, :semestre, :disciplina_id, :estudante_id], name: :historicos_ano_semestre_disciplina_id_index)
+    create unique_index(:historicos, [:ano, :semestre, :disciplina_id, :estudante_id],
+             name: :historicos_ano_semestre_disciplina_id_index
+           )
   end
 end

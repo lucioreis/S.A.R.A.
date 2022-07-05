@@ -6,7 +6,5 @@ defmodule Sapiens.Cursos.DisciplinaEstudante do
     field :disciplina_id, :integer
 
     timestamps()
-
   end
-
 end

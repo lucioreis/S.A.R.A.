@@ -32,8 +32,7 @@ defmodule Sapiens.Cursos.Estudante do
 
     timestamps()
 
-    many_to_many :disciplinas, Sapiens.Cursos.Disciplina,
-      join_through: Sapiens.Cursos.Historico
+    many_to_many :disciplinas, Sapiens.Cursos.Disciplina, join_through: Sapiens.Cursos.Historico
 
     many_to_many :turmas, Sapiens.Cursos.Turma, join_through: Sapiens.Cursos.EstudanteTurma
 
@@ -55,7 +54,7 @@ defmodule Sapiens.Cursos.Estudante do
       :estado,
       :cidade,
       :turmas,
-      :historicos,
+      :historicos
     ])
     |> validate_required([
       :matricula,

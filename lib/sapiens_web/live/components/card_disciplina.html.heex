@@ -68,7 +68,11 @@
         </tr>
         <%= for turma <- Enum.sort(@disciplina.turmas, &(&1.numero <=&2.numero )) do%>
           <tr class={"odd:bg-base-300 even:bg-base-500 #{if(turma.vagas_disponiveis==0, do: "text-gray-500" , else: ""
-            )}"}>
+            )}"}
+            phx-click="hover_on_turma"
+            phx-value-turma_id = {turma.id}
+            phx-value-estudante_id = {@estudante_id}
+            >
             <td>
               <%= if(turma.tipo=="teorica" , do: "T" , else: "P" ) %>
             </td>
@@ -78,7 +82,7 @@
 
             <td>
               <%= dia_to_str=%{1=> 'Seg', 2 => "Ter", 3 => "Qua", 4=>"Qui", 5=>"Sex", 6=>"Sab"}
-                for [{dia, hora}, {dia, hora1}] <- Enum.chunk_every(Map.keys(Turma.get_horarios(turma)), 2) do %>
+                for [{dia, hora}, {dia, hora1}] <- Enum.chunk_every(Map.keys(Turmas.get_horarios(turma)), 2) do %>
                   <div class="text-xs font-bold">
                     <%= "#{dia_to_str[dia]}: #{hora}:00-#{hora1+1}:00" %>
                   </div>
@@ -88,25 +92,7 @@
               <%= turma.vagas_disponiveis %>
             </td>
             <td>
-              <%= if turma.id not in for(turma <- @matriculas, do: turma.id) do %>
-                <div phx-target={@myself} phx-click={if @disciplina.id in for(turma <- @matriculas, do:
-                  turma.disciplina_id), do: "change" , else: "add" } phx-value-turma_numero={turma.numero}
-                  phx-value-disciplina_id={@disciplina.id}
-                  class="material-symbols-outlined cursor-pointer hover:text-highlight">
-
-                  <%= if(turma.vagas_disponiveis> 0) do
-                    if @disciplina.id in for(turma <- @matriculas, do: turma.disciplina_id), do: "sync" ,
-                      else: "add_circle" end %>
-
-                </div>
-                <% else %>
-                  <div phx-target={@myself} phx-click="remove" phx-value-turma_numero={turma.numero}
-                    phx-value-disciplina_id={@disciplina.id}>
-                    <span class="material-symbols-outlined">
-                      remove
-                    </span>
-                  </div>
-                  <% end %>
+              <Action.button turma={turma} disciplina_id={@disciplina.id} target={@myself} matriculas={@matriculas}/>
             </td>
           </tr>
           <% end %>

@@ -1,4 +1,3 @@
-
 defmodule Sapiens.Cursos.EstudanteTurma do
   use Ecto.Schema
 
@@ -6,7 +5,5 @@ defmodule Sapiens.Cursos.EstudanteTurma do
     belongs_to :estudante, Sapiens.Cursos.Estudante
     belongs_to :turma, Sapiens.Cursos.Turma
     belongs_to :disciplina, Sapiens.Cursos.Disciplina
-
   end
-
 end

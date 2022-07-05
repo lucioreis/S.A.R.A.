@@ -53,9 +53,9 @@ curso =
   })
 
 defmodule Gen do
-  defp ano, do: Enum.random [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
-  defp idade, do: Enum.random [18, 19, 20, 21, 22, 23, 24, 25, 26]
-  defp estado, do: Enum.random ["MG", "SP", "RJ", "ES"]
+  defp ano, do: Enum.random([2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022])
+  defp idade, do: Enum.random([18, 19, 20, 21, 22, 23, 24, 25, 26])
+  defp estado, do: Enum.random(["MG", "SP", "RJ", "ES"])
 
   defp nome do
     Enum.random(
@@ -126,22 +126,22 @@ defmodule Gen do
     local = "PVA #{Enum.random(100..310)}"
 
     horario =
-      Enum.reduce(2..carga//2, %{}, fn n, acc -> 
-        dia_de_aula = case carga do
-          6 -> Enum.random(1..3)
-          4 -> Enum.random(1..4)
-          2 -> Enum.random(1..5)
-        end
+      Enum.reduce(2..carga//2, %{}, fn n, acc ->
+        dia_de_aula =
+          case carga do
+            6 -> Enum.random(1..3)
+            4 -> Enum.random(1..4)
+            2 -> Enum.random(1..5)
+          end
 
         hora_de_aula = Enum.random([8, 10, 14, 16])
 
         case Map.get(horario, [dia_de_aula, hora_de_aula]) do
-          nil -> Map.put(acc, [dia_de_aula, hora_de_aula], %{local: local, codigo: codigo})
-                |> Map.put([dia_de_aula, hora_de_aula+1], %{local: local, codigo: codigo})
+          nil ->
+            Map.put(acc, [dia_de_aula, hora_de_aula], %{local: local, codigo: codigo})
+            |> Map.put([dia_de_aula, hora_de_aula + 1], %{local: local, codigo: codigo})
         end
-
       end)
-        
 
     %Turma{
       numero: i,
@@ -155,7 +155,7 @@ defmodule Gen do
   def professor(curso) do
     semestre = 1
     tipo_turma = "teorica"
-    ano_ingresso =  ano()
+    ano_ingresso = ano()
     nome = nome() <> " " <> sobrenome()
     data_nascimento = ~D[2000-01-01]
     matricula = "pr" <> Integer.to_string(Enum.random(10000..99999))

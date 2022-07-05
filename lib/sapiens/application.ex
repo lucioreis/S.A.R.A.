@@ -15,9 +15,10 @@ defmodule Sapiens.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Sapiens.PubSub},
       # Start the Endpoint (http/https)
-      SapiensWeb.Endpoint
+      SapiensWeb.Endpoint,
       # Start a worker by calling: Sapiens.Worker.start_link(arg)
       # {Sapiens.Worker, arg}
+      {Registry, keys: :unique, name: Registry.Acerto}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

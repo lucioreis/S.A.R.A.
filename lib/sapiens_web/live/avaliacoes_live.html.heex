@@ -1,7 +1,7 @@
+<div>
 <%= for grade <- @grades do %>
   <div class="w-full">
     <div class="flex flex-col w-[90%]  border border-b border-black rounded-md m-5">
-
       <div class=" flex py-1 px-2 bg-highlight rounded-t-md text-base-100 justify-between">
         <div>
           <%= grade |> elem(0) %>
@@ -80,3 +80,4 @@
     </div>
   </div>
   <%end%>
+</div>

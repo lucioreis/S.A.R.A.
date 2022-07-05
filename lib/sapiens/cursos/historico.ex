@@ -2,7 +2,7 @@ defmodule Sapiens.Cursos.Historico do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @moduledoc"""
+  @moduledoc """
     %Historica{
       ano: :integer,
       conceito: :string,
@@ -19,6 +19,7 @@ defmodule Sapiens.Cursos.Historico do
     field :conceito, :string
     field :semestre, :integer
     field :nota, :decimal
+    field :notas, :map
     field :turma_pratica, :integer
     field :turma_teorica, :integer
 
@@ -26,14 +27,25 @@ defmodule Sapiens.Cursos.Historico do
 
     belongs_to :estudante, Sapiens.Cursos.Estudante
     belongs_to :disciplina, Sapiens.Cursos.Disciplina
-
   end
 
   @doc false
   def changeset(historico, attrs \\ %{}) do
     historico
-    |> cast(attrs, [:ano, :semestre, :nota, :conceito, :turma_pratica, :turma_teorica, :estudante_id, :disciplina_id])
+    |> cast(attrs, [
+      :ano,
+      :semestre,
+      :nota,
+      :notas,
+      :conceito,
+      :turma_pratica,
+      :turma_teorica,
+      :estudante_id,
+      :disciplina_id
+    ])
     |> validate_required([:ano, :semestre])
-    |> unique_constraint([:ano, :semestre, :disciplina_id, :estudante_id], name: :historicos_ano_semestre_disciplina_id_index)
+    |> unique_constraint([:ano, :semestre, :disciplina_id, :estudante_id],
+      name: :historicos_ano_semestre_disciplina_id_index
+    )
   end
 end

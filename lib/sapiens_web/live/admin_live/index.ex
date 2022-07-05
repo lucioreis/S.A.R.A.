@@ -3,11 +3,11 @@ defmodule SapiensWeb.AdminLive.Index do
 
   @impl true
   def mount(_p, _s, socket) do
-    socket = 
+    socket =
       socket
       |> assign(name: "Administrador")
       |> assign(menu_options: [])
+
     {:ok, socket}
   end
-  
 end

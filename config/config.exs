@@ -40,15 +40,16 @@ config :esbuild,
   ]
 
 # Config tailwindcss
-config :tailwind, version: "3.0.24", default: [
-  args: ~w(
+config :tailwind,
+  version: "3.0.24",
+  default: [
+    args: ~w(
     --config=../tailwind.config.js
     --input=css/app.css
     --output=../priv/static/assets/app.css
   ),
-  cd: Path.expand("../assets",__DIR__)
-]
-
+    cd: Path.expand("../assets", __DIR__)
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -57,6 +58,11 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :surface, :components, [
+  {Surface.Components.Form.ErrorTag,
+   default_translator: {SapiensWeb.ErrorHelpers, :translate_error}}
+]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

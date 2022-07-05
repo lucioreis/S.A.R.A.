@@ -3,13 +3,18 @@ defmodule SapiensWeb.Professor.HomeLive do
 
   @impl true
   def mount(%{"id" => id}, _params, socket) do
-    id= String.to_integer(id)
+    id = String.to_integer(id)
+
     socket =
       socket
-      |> assign(menu_options: [
-        {"lock", "Disciplinas", &Routes.live_path(&1, SapiensWeb.Professor.DisciplinasLive,  id: Integer.to_string(id))},
-        {"casino", "Alunos", &Routes.live_path(&1, SapiensWeb.Professor.HomeLive, id: Integer.to_string(id)) },
-      ])
+      |> assign(
+        menu_options: [
+          {"lock", "Disciplinas",
+           &Routes.live_path(&1, SapiensWeb.Professor.DisciplinasLive, id: Integer.to_string(id))},
+          {"casino", "Alunos",
+           &Routes.live_path(&1, SapiensWeb.Professor.HomeLive, id: Integer.to_string(id))}
+        ]
+      )
       |> assign(name: "Home")
       |> assign(nome: "Home")
       |> assign(user_id: id)
@@ -31,7 +36,6 @@ defmodule SapiensWeb.Professor.HomeLive do
 
     {:ok, socket}
   end
-
 
   defp get_horario(_socket) do
     %{

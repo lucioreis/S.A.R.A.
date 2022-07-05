@@ -1,7 +1,8 @@
 defmodule Sapiens.Cursos.Professor do
   use Ecto.Schema
   import Ecto.Changeset
-  @moduledoc"""
+
+  @moduledoc """
     %Professor{
       matricula: string,
       codigo: :integer,
@@ -26,17 +27,25 @@ defmodule Sapiens.Cursos.Professor do
 
     timestamps()
 
-    many_to_many :disciplinas, Sapiens.Cursos.Disciplina, join_through: Sapiens.Cursos.DisciplinaProfessor
+    many_to_many :disciplinas, Sapiens.Cursos.Disciplina,
+      join_through: Sapiens.Cursos.DisciplinaProfessor
 
     has_many :turmas, Sapiens.Cursos.Turma
     belongs_to :curso, Sapiens.Cursos.Curso
-
   end
 
   @doc false
   def changeset(professor, attrs) do
     professor
-    |> cast(attrs, [:matricula, :codigo, :semestre, :ano_ingresso,  :tipo_turma, :data_nascimento, :nome])
+    |> cast(attrs, [
+      :matricula,
+      :codigo,
+      :semestre,
+      :ano_ingresso,
+      :tipo_turma,
+      :data_nascimento,
+      :nome
+    ])
     |> validate_required([:matricula, :codigo, :semestre, :ano_ingresso, :nome, :data_nascimento])
   end
 end

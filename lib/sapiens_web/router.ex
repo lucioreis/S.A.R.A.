@@ -28,7 +28,7 @@ defmodule SapiensWeb.Router do
     live("/pessoal", DadosPessoalLive)
     live("/plano-estudo", PlanoEstudoLive)
     live("/avaliacoes", AvaliacoesLive)
-
+    live "/demo", Demo
   end
 
   scope "/professor", SapiensWeb do
@@ -42,7 +42,7 @@ defmodule SapiensWeb.Router do
 
   scope "/admin", SapiensWeb do
     pipe_through(:browser)
-    live("/", AdminLive.Index, :index )
+    live("/", AdminLive.Index, :index)
   end
 
   # Other scopes may use custom stacks.

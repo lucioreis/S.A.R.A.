@@ -6,5 +6,3 @@ defmodule SapiensWeb.PlanoEstudoLive do
     {:ok, socket}
   end
 end
-
-

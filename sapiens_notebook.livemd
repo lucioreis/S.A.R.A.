@@ -10,11 +10,13 @@ import Ecto.Query, only: [from: 2], warn: false
 alias Sapiens.Repo
 
 alias Sapiens.{
-  Estudante,
-  Professor,
-  Curso,
-  Disciplina,
-  Turma
+  Estudantes,
+  Professores,
+  Cursos,
+  Disciplinas,
+  Turmas,
+  Acerto,
+  Plano
 }
 ```
 
@@ -36,17 +38,29 @@ node()
 ### Teste get_turma_by_numero()
 
 ```elixir
-{:ok, d} = Disciplina.by_id(2)
-{:ok, turma} = Disciplina.get_turma_by_numero(d, 2)
+{:ok, turma} = Turmas.by_id(2)
+{:ok, estudante} = Estudantes.by_id(2)
+Acerto.validar_horario(estudante, turma)
 ```
 
 ### Teste de inscrição em disciplina
 
 ```elixir
-{:ok, estudante} = Estudante.by_id(2)
-{:ok, disciplina} = Disciplina.by_id(1)
-Estudante.remove_disciplina(estudante, disciplina)
+{:ok, estudante} = Estudantes.by_id(2)
+{:ok, disciplina} = Disciplinas.by_id(1)
+# Plano.remover_estudante_disciplina(estudante, disciplina)
 # Disciplina.matricular_estudante(disciplina, estudante, 2)
+alt = %Sapiens.Alteracoes{
+  pid: self(),
+  author: estudante,
+  time: :qualquer,
+  action: :remove,
+  target: turma
+}
+
+{:ok, alts} = alts
+Sapiens.Alteracoes.push(alts, alt)
+Sapiens.Alteracoes.get(alts)
 ```
 
 ### Teste de desinscrição em disciplina

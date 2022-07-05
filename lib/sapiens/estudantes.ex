@@ -1,4 +1,4 @@
-defmodule Sapiens.Estudante do
+defmodule Sapiens.Estudantes do
   import Ecto.Query, only: [from: 2], warn: false
   import Sapiens.Utils, warn: false
 
@@ -112,63 +112,7 @@ defmodule Sapiens.Estudante do
     {:ok, estudante.turmas}
   end
 
-  def add_disciplina(estudante, disciplina, ano \\ 0, semestre \\ nil) do
-    semestre = semestre || semestre_atual()
-
-    historico =
-      Historico.changeset(
-        %Historico{},
-        %{
-          ano: ano,
-          conceito: "0",
-          semestre: semestre,
-          nota: 0,
-          turma_pratica: 0,
-          turma_teorica: 0
-        }
-      )
-      |> Ecto.Changeset.put_assoc(:disciplina, disciplina)
-      |> Ecto.Changeset.put_assoc(:estudante, estudante)
-
-    case Repo.insert(historico) do
-      {:ok, struct} -> {:ok, struct}
-      {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  def remove_disciplina(estudante, disciplina, ano \\ 0, semestre \\ nil) do
-    semestre = semestre || semestre_atual()
-
-    case Repo.get_by(
-           Historico,
-           estudante_id: estudante.id,
-           disciplina_id: disciplina.id,
-           ano: ano,
-           semestre: semestre
-         ) do
-      nil ->
-        {:error, "Histórico não existe"}
-
-      historico ->
-
-        from(t in Sapiens.Cursos.Turma,
-          join: et in Sapiens.Cursos.EstudanteTurma,
-          on: et.turma_id == t.id,
-          where: t.disciplina_id == ^disciplina.id,
-          where: et.estudante_id == ^estudante.id
-        )
-        |> Repo.delete_all()
-
-        case Repo.delete(historico) do
-          {:ok, struct} -> {:ok, struct}
-          {:error, changeset} -> {:error, changeset}
-        end
-    end
-  end
-
-  def get_historico(estudante, disciplina, ano \\ 0, semestre \\ 0) do
-    semestre = if semestre == 0, do: semestre_atual(), else: semestre
-    ano = if ano == 0, do: ano_atual(), else: ano
+  def get_historico(estudante, disciplina, ano \\ ano_atual(), semestre \\ semestre_atual()) do
 
     case Repo.get_by(Historico,
            estudante_id: estudante.id,
@@ -201,7 +145,7 @@ defmodule Sapiens.Estudante do
        %{},
        fn turma, horarios ->
          Enum.reduce(
-           Sapiens.Turma.get_horarios(turma),
+           Sapiens.Turmas.get_horarios(turma),
            horarios,
            fn {key, value}, acc -> Map.put(acc, key, value) end
          )

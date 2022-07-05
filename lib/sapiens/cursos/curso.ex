@@ -1,7 +1,8 @@
 defmodule Sapiens.Cursos.Curso do
   use Ecto.Schema
   import Ecto.Changeset
-  @moduledoc"""
+
+  @moduledoc """
     %Sapiens.Cursos.Curso{
       __meta__: #Ecto.Schema.Metadata<:loaded, "cursos">,
       id: integer,
@@ -25,8 +26,6 @@ defmodule Sapiens.Cursos.Curso do
     has_many :estudantes, Sapiens.Cursos.Estudante
     has_many :professores, Sapiens.Cursos.Professor
     has_many :disciplinas, Sapiens.Cursos.Disciplina
-
-
   end
 
   @doc false

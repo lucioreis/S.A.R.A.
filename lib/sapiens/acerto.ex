@@ -1,4 +1,4 @@
-defmodule Sapiens.Turma do
+defmodule Sapiens.Acerto do
   import Ecto.Query, only: [from: 2], warn: false
 
   alias Sapiens.Cursos.{
@@ -12,21 +12,16 @@ defmodule Sapiens.Turma do
         },
         warn: false
 
+  alias Sapiens.{
+          Estudantes,
+          Turmas,
+          Disciplinas
+        },
+        warn: false
+
   alias Sapiens.Repo, warn: false
 
-  def by_id(id) do
-    case Repo.get_by(Turma, id: id) do
-      nil -> {:error, "Turma não encontrada: id=#{id}"}
-      turma -> {:ok, turma}
-    end
-  end
-
-  def get_horarios(turma) do
-    turma.horario
-    |> Enum.reduce(%{}, fn {<<dia, hora>>, value}, acc -> Map.put_new(acc, {dia, hora}, value) end)
-  end
-
-  def adiciona_estudante(turma, estudante) do
+  def adiciona(estudante, turma) do
     case Repo.get_by(Sapiens.Cursos.EstudanteTurma,
            disciplina_id: turma.disciplina_id,
            estudante_id: estudante.id
@@ -51,7 +46,7 @@ defmodule Sapiens.Turma do
     end
   end
 
-  def remove_estudante(turma, estudante) do
+  def remove(estudante, turma) do
     case Repo.get_by(Sapiens.Cursos.EstudanteTurma,
            disciplina_id: turma.disciplina_id,
            estudante_id: estudante.id
@@ -71,10 +66,10 @@ defmodule Sapiens.Turma do
     end
   end
 
-  def troca_turma(disciplina, estudante, nova_turma_numero) do
+  def troca(estudante, nova_turma) do
     case Repo.get_by(Sapiens.Cursos.EstudanteTurma,
            estudante_id: estudante.id,
-           disciplina_id: disciplina.id
+           disciplina_id: nova_turma.disciplina_id
          ) do
       nil ->
         {:error, "Estudante não está na turma"}
@@ -85,16 +80,41 @@ defmodule Sapiens.Turma do
             {:error, "Há uma inconsistencia no banco de dados"}
 
           old_turma ->
-            case Repo.get_by(Sapiens.Cursos.Turma, numero: nova_turma_numero, disciplina_id: disciplina.id) do
+            case Repo.get_by(Sapiens.Cursos.Turma,
+                   numero: nova_turma.numero,
+                   disciplina_id: nova_turma.disciplina_id
+                 ) do
               nil ->
                 {:erro, "Nova Turma não existe"}
 
               nova_turma ->
-                remove_estudante(old_turma, estudante)
-                adiciona_estudante(nova_turma, estudante)
+                remove(estudante, old_turma)
+                adiciona(estudante, nova_turma)
                 {:ok, nova_turma}
             end
         end
     end
+  end
+
+  def validar_horario(estudante, turma) do
+    {:ok, horario} = Estudantes.get_horarios(estudante)
+
+    collisions =
+      Enum.reduce(horario, %{}, fn {{dia, hora}, body}, acc ->
+        case Map.get(turma.horario, <<dia, hora>>) do
+          nil ->
+            acc
+
+          _value ->
+            if(body["codigo"] != turma.horario["codigo"]) do
+              # require IEx; IEx.pry
+              Map.put(acc, {dia, hora}, body)
+            else
+              acc
+            end
+        end
+      end)
+
+    if Map.equal?(collisions, %{}), do: {:ok, horario}, else: {:error, collisions}
   end
 end

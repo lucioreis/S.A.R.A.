@@ -1,5 +1,5 @@
 defmodule SapiensWeb.Components.ListItens do
- use Phoenix.Component 
+  use Phoenix.Component
 
   def unordered(assigns) do
     ~H"""

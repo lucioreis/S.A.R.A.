@@ -5,7 +5,9 @@ module.exports = {
     './js/**/*.js',
     '../lib/*_web.ex',
     '../lib/*_web/**/*.*ex',
-    './lib/*_web/**/*.heex'
+    './lib/*_web/**/*.*ex',
+    './lib/*_web/**/*.heex',
+    './lib/*_web/**/*.sface'
   ],
   theme: {
     extend: {

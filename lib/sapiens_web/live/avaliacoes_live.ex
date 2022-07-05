@@ -3,11 +3,10 @@ defmodule SapiensWeb.AvaliacoesLive do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-
     id = String.to_integer(id)
+
     socket =
       socket
-
       |> assign(
         menu_options: [
           {"sync", "Acerto de Matrícula", &Routes.live_path(&1, SapiensWeb.AcertoLive, id: id)},
@@ -19,37 +18,40 @@ defmodule SapiensWeb.AvaliacoesLive do
           {"library_books", "Biblioteca", &Routes.live_path(&1, SapiensWeb.PageLive, id: id)},
           {"task", "Plano de estudo", &Routes.live_path(&1, SapiensWeb.PlanoEstudoLive, id: id)}
         ]
-      ) |> assign(name: "Avaliações")
-        |> assign(estudante_id: id)
-        |> assign(user_id: id)
-        |> assign(grades: get_grades())
-      
+      )
+      |> assign(name: "Avaliações")
+      |> assign(estudante_id: id)
+      |> assign(user_id: id)
+      |> assign(grades: get_grades())
+
     {:ok, socket}
   end
 
   defp get_grades() do
     for _ <- 1..Enum.random(1..10) do
-      nome = "INF #{Enum.random(100..300)}" 
-        f_pratica = Enum.random(0..10)
-        f_teorica = Enum.random(0..20)
-        notas = [P1: Enum.random(50..100), P2: Enum.random(40..80), P3: Enum.random(0..100)]
-        total = div(Enum.reduce(notas, 0, fn {_, value}, acc -> value+acc end ), length(notas))
-        exame_final = if total > 40 and total < 60, do: Enum.random(10..100), else: 0
-        nota_final = if exame_final > 2, do: div(exame_final+total, 2), else: total
-        conceito = if(f_teorica >= 16 or f_pratica >= 16, do: "L", else: nota_final)
-        timestamp = Enum.random([hora: Enum.random(1..12), minuto: Enum.random(1..50), dia: Enum.random(1..23)])
-        {
-          nome,
-          f_pratica,
-          f_teorica,
-          notas,
-          total,
-          exame_final,
-          nota_final,
-          conceito,
-          timestamp
-        }
-    end
+      nome = "INF #{Enum.random(100..300)}"
+      f_pratica = Enum.random(0..10)
+      f_teorica = Enum.random(0..20)
+      notas = [P1: Enum.random(50..100), P2: Enum.random(40..80), P3: Enum.random(0..100)]
+      total = div(Enum.reduce(notas, 0, fn {_, value}, acc -> value + acc end), length(notas))
+      exame_final = if total > 40 and total < 60, do: Enum.random(10..100), else: 0
+      nota_final = if exame_final > 2, do: div(exame_final + total, 2), else: total
+      conceito = if(f_teorica >= 16 or f_pratica >= 16, do: "L", else: nota_final)
 
+      timestamp =
+        Enum.random(hora: Enum.random(1..12), minuto: Enum.random(1..50), dia: Enum.random(1..23))
+
+      {
+        nome,
+        f_pratica,
+        f_teorica,
+        notas,
+        total,
+        exame_final,
+        nota_final,
+        conceito,
+        timestamp
+      }
+    end
   end
 end

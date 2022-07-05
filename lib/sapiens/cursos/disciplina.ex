@@ -35,7 +35,6 @@ defmodule Sapiens.Cursos.Disciplina do
     has_many :turmas, Sapiens.Cursos.Turma
 
     belongs_to :curso, Sapiens.Cursos.Curso
-
   end
 
   @doc false
