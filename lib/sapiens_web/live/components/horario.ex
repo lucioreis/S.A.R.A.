@@ -1,15 +1,12 @@
 defmodule SapiensWeb.Live.Components.Horario do
-  use Surface.Component
+  use Phoenix.Component
 
   @moduledoc """
     Show a student's schedulle.
   """
 
-  prop horario, :map, required: true
-  prop collisions, :map, default: %{}
-
   def render(assigns) do
-    ~F"""
+    ~H"""
     <div class="">
       <div class="text-xs overflow-y-scroll">
         <table class="p-0 w-full text-center">
@@ -27,29 +24,31 @@ defmodule SapiensWeb.Live.Components.Horario do
           </thead>
           <tbody>
             <!-- row 1 -->
-            {#for time <- 7..17}
+            <%= for time <- 7..17 do %>
               <tr class="text-sm odd:bg-base-200 even:bg-base-500">
                 <td class="sticky left-0 bg-base-300 font-bold">
-                  {time} :00
+                  <%= time %> :00
                 </td>
-                {#for day <- 1..6}
+                <%= for day <- 1..6 do %>
                   <td>
-                    {#if @horario[{day, time}] && Map.keys(@collisions) > 2}
-                      <p class="font-bold">
-                        {@horario[{day, time}]["codigo"]}
-                      </p>
-                      <p class="font-light text-xs">
-                        {@horario[{day, time}]["local"]}
-                      </p>
-                    {#else}
+                    <%= if @horario[{day, time}] do %>
+                      <span class={if @collisions[{day, time}], do: "text-red-500", else: "text-black"}>
+                        <p class="font-bold">
+                          <%= @horario[{day, time}]["codigo"] %>
+                        </p>
+                        <p class="font-light text-xs">
+                          <%= @horario[{day, time}]["local"] %>
+                        </p>
+                      </span>
+                     <% else %>
                       <p class="text-gray-400">
                         --
                       </p>
-                    {/if}
+                  <% end %>
                   </td>
-                {/for}
+                <% end %>
               </tr>
-            {/for}
+            <% end %>
             <!-- row 2 -->
           </tbody>
         </table>

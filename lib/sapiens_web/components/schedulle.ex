@@ -3,7 +3,7 @@ defmodule SapiensWem.Components.Schedulle do
 
   def horario(assigns) do
     ~H"""
-        <div> horario </div>
-      """
+      <div> horario </div>
+    """
   end
 end

@@ -113,7 +113,6 @@ defmodule Sapiens.Estudantes do
   end
 
   def get_historico(estudante, disciplina, ano \\ ano_atual(), semestre \\ semestre_atual()) do
-
     case Repo.get_by(Historico,
            estudante_id: estudante.id,
            disciplina_id: disciplina.id,

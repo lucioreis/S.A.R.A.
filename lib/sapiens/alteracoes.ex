@@ -10,7 +10,7 @@ defmodule Sapiens.Alteracoes do
     author: Quem está alterando a Matricula
         {%Estudante{}, %Professor}
     time: Tempo que foi feita a alteração
-    action: Qual a ação :remove, :add, :change
+    action: Qual a ação %{remove: [%Turma{}], add: [%Turmas{}]
     old: Estado antigo que devem ser alterados 
           %{  
             disciplina: %Disciplina{},
@@ -19,14 +19,16 @@ defmodule Sapiens.Alteracoes do
     target: Estado novo no lugar dos antigos %{%estudante{}, %Disciplina{}, %Turma{}}
   %}
   """
-  defstruct pid: nil, author: nil, time: nil, action: nil, old: nil, target: nil
-  
+  defstruct pid: nil, author: nil, time: nil, add: nil, remove: nil
+
   def start_link(author) do
     case Registry.lookup(Registry.Acerto, author.id) do
-        [] -> 
-          name = {:via, Registry, {Registry.Acerto, author.id}}
-          Agent.start_link(fn -> [] end, name: name)
-        [{pid, _}] -> {:ok, pid}
+      [] ->
+        name = {:via, Registry, {Registry.Acerto, author.id}}
+        Agent.start_link(fn -> [] end, name: name)
+
+      [{pid, _}] ->
+        {:ok, pid}
     end
   end
 
@@ -39,7 +41,7 @@ defmodule Sapiens.Alteracoes do
   end
 
   def pop(alteracoes) do
-    popped = Agent.get(alteracoes, &(List.pop_at(&1, length(&1)-1))) 
+    popped = Agent.get(alteracoes, &List.pop_at(&1, length(&1) - 1))
     Agent.update(alteracoes, fn state -> List.delete_at(state, length(state) - 1) end)
     popped
   end
@@ -53,29 +55,23 @@ defmodule Sapiens.Alteracoes do
   end
 
   def commit(alteracoes) do
+    Agent.update(alteracoes, fn _state -> %{} end)
     Agent.get(alteracoes, & &1)
     |> Enum.map(fn alt ->
-      case alt.action do
-        :add ->
+      if alt.add do
           send(
             alt.pid,
             add: :added #Acerto.adiciona(alt.author, alt.target)
           )
-
-        :remove ->
+      end
+      if alt.remove do
           send(
             alt.pid,
             remove: :removed #Acerto.remove(alt.author, alt.old)
           )
-
-        :troca ->
-          send(
-            alt.pid,
-            change: :changed #Acerto.troca(alt.author, alt.target)
-          )
       end
+
     end)
 
-    Agent.update(alteracoes, fn _state -> %{} end)
   end
 end

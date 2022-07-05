@@ -6,7 +6,7 @@ defmodule SapiensWeb.Components.Action do
   Inclui estilos e comportamentos no botão de ação.
   (Adicionar, Remover e Trocar)
   """
- # prop target, :any
+  # prop target, :any
 
   # Retorna `bool` se a turma está entre as matriculas
   defp matriculado(turma, matriculas) do

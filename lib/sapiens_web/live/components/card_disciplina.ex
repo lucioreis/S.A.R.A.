@@ -73,8 +73,7 @@ defmodule SapiensWeb.Components.CardDisciplina do
      |> assign(:horario, assigns.horario)
      |> assign(:matriculado, assigns.matriculado)
      |> assign(:matriculas, assigns.matriculas)
-      |> assign(:alt_agent, assigns.alt_agent)
-     }
+     |> assign(:alt_agent, assigns.alt_agent)}
   end
 
   @impl true
@@ -86,7 +85,6 @@ defmodule SapiensWeb.Components.CardDisciplina do
       matriculas = Turmas.preload_all(assigns.matriculas, :disciplina)
       matriculado = matriculado?(assigns.matriculas, disciplina)
       {:ok, alt_agent} = Sapiens.Alteracoes.start_link(estudante)
-
 
       assigns
       |> Map.put(:estudante, estudante)
@@ -104,7 +102,6 @@ defmodule SapiensWeb.Components.CardDisciplina do
 
   defp apply_action(action, socket, disciplina_id, turma_numero) do
     {:ok, estudante} = Estudantes.by_id(socket.assigns.estudante_id)
-    {:ok, disciplina} = Disciplinas.by_id(disciplina_id)
     {:ok, horario} = Estudantes.get_horarios(estudante)
     {:ok, matriculas} = Estudantes.get_turmas_matriculado(estudante)
     {:ok, turma} = Turmas.get_by(disciplina_id: disciplina_id, numero: turma_numero)
@@ -126,6 +123,7 @@ defmodule SapiensWeb.Components.CardDisciplina do
         :remove ->
           &Acerto.remove/2
       end
+
     # require IEx; IEx.pry
 
     Sapiens.Alteracoes.push(
@@ -153,11 +151,10 @@ defmodule SapiensWeb.Components.CardDisciplina do
               {:mat,
                %{
                  sender: self(),
-                 disciplina_id: disciplina.id
+                 disciplina_id: disciplina_id
                }}
             )
 
-            {:ok, disciplina} = Disciplinas.by_id(disciplina_id, preload: :turmas)
             {:ok, horario} = Estudantes.get_horarios(estudante)
             {:ok, matriculas} = Estudantes.get_turmas_matriculado(estudante)
             matriculas = Turmas.preload_all(matriculas, :disciplina)
@@ -169,7 +166,6 @@ defmodule SapiensWeb.Components.CardDisciplina do
 
             socket
             |> assign(turma: turma)
-            |> assign(disciplina: disciplina)
             |> assign(matriculas: matriculas)
             |> assign(matriculado: matriculado)
 

@@ -62,7 +62,7 @@ defmodule Sapiens.Plano do
       {:error, changeset} -> {:error, changeset}
     end
   end
-  
+
   @doc """
   Remove uma disciplina do plano de estudo.
   Disciplina que são prerequisitos ou correquisitos de outras disciplinas
@@ -77,7 +77,7 @@ defmodule Sapiens.Plano do
     iex> remover_estudante_disciplina(%Estudante{}, %Disciplina{})
     {:ok, %Ecto.Changeset{}}
   """
-  def remove(estudante, disciplina, ano \\0, semestre \\0) do
+  def remove(estudante, disciplina, ano \\ 0, semestre \\ 0) do
     semestre = semestre || semestre_atual()
     ano = ano || ano_atual()
 
@@ -148,7 +148,8 @@ defmodule Sapiens.Plano do
     iex>Plano.validar_co_requisitos(%Estudante{}, %Disciplina{})
     {:error, [%Disciplina{}]}
   """
-  @spec validar_co_requisitos(Estudante.t, Disciplina.t) :: {:ok, Disciplina.t} | {:error, [Disciplina.t]}
+  @spec validar_co_requisitos(Estudante.t(), Disciplina.t()) ::
+          {:ok, Disciplina.t()} | {:error, [Disciplina.t()]}
   def validar_co_requisitos(estudante, disciplina) do
     {:ok, disciplina}
   end
@@ -166,13 +167,9 @@ defmodule Sapiens.Plano do
     iex>Plano.validar_pre_requisitos(%Estudante{}, %Disciplina{})
     {:error, [%Disciplina{}]}
   """
-  @spec validar_pre_requisitos(Estudante.t, Disciplina.t) :: {:ok, Disciplina.t} | {:error, [Disciplina.t]}
+  @spec validar_pre_requisitos(Estudante.t(), Disciplina.t()) ::
+          {:ok, Disciplina.t()} | {:error, [Disciplina.t()]}
   def validar_pre_requisitos(estudante, disciplina) do
     {:ok, disciplina}
   end
-
-
-
-
-
 end

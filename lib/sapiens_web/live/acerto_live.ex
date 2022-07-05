@@ -52,6 +52,7 @@ defmodule SapiensWeb.AcertoLive do
       |> build_message()
     }
   end
+
   #
   # @impl true
   # def handle_params(%{"id" => id}, _uri, socket) do
@@ -119,10 +120,9 @@ defmodule SapiensWeb.AcertoLive do
 
   @impl true
   def handle_info({:alt, %{agent: agent_pid}}, socket) do
-      {:noreply, 
-        socket
-      |> assign(alteracoes: Alteracoes.get(agent_pid))
-      }
+    {:noreply,
+     socket
+     |> assign(alteracoes: Alteracoes.get(agent_pid))}
   end
 
   @impl true
@@ -145,10 +145,9 @@ defmodule SapiensWeb.AcertoLive do
 
   @impl true
   def handle_event("dismiss_msg", _params, socket) do
-    {:noreply, 
-    socket
-    |> assign(message: nil)
-    }
+    {:noreply,
+     socket
+     |> assign(message: nil)}
   end
 
   @impl true
@@ -161,7 +160,6 @@ defmodule SapiensWeb.AcertoLive do
   defp build_message(socket) do
     socket
     |> assign(message: "This is another message!")
-
   end
 
   @impl true

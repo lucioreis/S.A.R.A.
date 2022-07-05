@@ -5,6 +5,5 @@ defmodule Sapiens.Repo.Migrations.AddNotasToHistoricosTable do
     alter table("historicos") do
       add :notas, :map
     end
-
   end
 end

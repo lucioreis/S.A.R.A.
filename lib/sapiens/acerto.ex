@@ -105,9 +105,8 @@ defmodule Sapiens.Acerto do
           nil ->
             acc
 
-          _value ->
-            if(body["codigo"] != turma.horario["codigo"]) do
-              # require IEx; IEx.pry
+          value ->
+            if body["codigo"] != value["codigo"] do
               Map.put(acc, {dia, hora}, body)
             else
               acc
