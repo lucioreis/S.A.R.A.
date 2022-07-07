@@ -69,9 +69,6 @@
         <%= for turma <- Enum.sort(@disciplina.turmas, &(&1.numero <=&2.numero )) do%>
           <tr class={"odd:bg-base-300 even:bg-base-500 #{if(turma.vagas_disponiveis==0, do: "text-gray-500" , else: ""
             )}"}
-            phx-click="hover_on_turma"
-            phx-value-turma_id = {turma.id}
-            phx-value-estudante_id = {@estudante_id}
             >
             <td>
               <%= if(turma.tipo=="teorica" , do: "T" , else: "P" ) %>
@@ -91,8 +88,8 @@
             <td>
               <%= turma.vagas_disponiveis %>
             </td>
-            <td>
-              <Action.button turma={turma} disciplina_id={@disciplina.id} target={@myself} matriculas={@matriculas}/>
+            <td> <%= @clean %>
+                <Action.button turma={turma} disciplina_id={@disciplina.id} target={@myself} matriculas={@matriculas} clean={@clean}/>
             </td>
           </tr>
           <% end %>

@@ -1,5 +1,6 @@
 defmodule Sapiens.Acerto do
   import Ecto.Query, only: [from: 2], warn: false
+  use GenServer
 
   alias Sapiens.Cursos.{
           Estudante,
@@ -15,11 +16,13 @@ defmodule Sapiens.Acerto do
   alias Sapiens.{
           Estudantes,
           Turmas,
-          Disciplinas
+          Disciplinas,
+          Alteracoes
         },
         warn: false
 
   alias Sapiens.Repo, warn: false
+
 
   def adiciona(estudante, turma) do
     case Repo.get_by(Sapiens.Cursos.EstudanteTurma,

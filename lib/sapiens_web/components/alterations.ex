@@ -3,9 +3,15 @@ defmodule SapiensWeb.Alterations do
 
   defp alterations_to_string(alteration) do
     case alteration.action do
-      :add -> "Adicionando turma #{alteration.target.numero}"
-      :remove -> "Removendo turma #{alteration.target.numero}"
-      :troca -> "Trocando turma #{alteration.target.numero}"
+      :change ->
+        "Trocando turma #{alteration.turma.numero} por #{alteration.turma.numero}"
+
+      :add ->
+        "Adicionando turma #{alteration.turma.numero}"
+
+      :remove ->
+        "Removendo turma #{alteration.turma.numero}"
+      true -> ""
     end
   end
 

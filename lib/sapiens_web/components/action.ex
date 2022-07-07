@@ -21,8 +21,8 @@ defmodule SapiensWeb.Components.Action do
   def button(assigns) do
     ~H"""
     <div>
-      <%= if @turma.vagas_disponiveis > 0 do %>
-         <%= if not registrado(@disciplina_id, @matriculas) do %>
+      <%= if @turma.vagas_disponiveis > 0  do %>
+         <%= if not registrado(@disciplina_id, @matriculas) and @clean do %>
           <div
             phx-click="add"
             phx-target={@target}
@@ -33,7 +33,7 @@ defmodule SapiensWeb.Components.Action do
             add_circle
           </div>
           <% end %>
-        <%= if registrado(@disciplina_id, @matriculas) and not matriculado(@turma, @matriculas) do %>
+        <%= if registrado(@disciplina_id, @matriculas) and not matriculado(@turma, @matriculas) and @clean do %>
           <div
             phx-click="change"
             phx-target={@target}
@@ -46,7 +46,7 @@ defmodule SapiensWeb.Components.Action do
           <% end %>
           <%= if registrado(@disciplina_id, @matriculas) and matriculado(@turma, @matriculas) do %>
           <div
-            phx-click="remove"
+            phx-click={if @clean, do: "remove", else: "undo"}
             phx-target={@target}
             phx-value-turma_numero={@turma.numero}
             phx-value-disciplina_id={@disciplina_id}

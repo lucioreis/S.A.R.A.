@@ -27,54 +27,30 @@ defmodule SapiensWeb.AcertoLive do
         ]
       )
 
+    id = String.to_integer(id)
+    {:ok, estudante} = Estudantes.by_id(id)
+    {:ok, disciplinas} = Estudantes.get_disciplinas(estudante)
     socket =
       socket
-      |> assign(:estudante_id, String.to_integer(id))
-      |> assign(:user_id, String.to_integer(id))
+      |> assign(:estudante_id, id)
+      |> assign(:user_id, id)
 
-    {:ok, estudante} = Estudantes.by_id(socket.assigns.estudante_id)
-    {:ok, disciplinas} = Estudantes.get_disciplinas(estudante)
-    {:ok, horario} = Estudantes.get_horarios(estudante)
-    {:ok, matriculas} = Estudantes.get_turmas_matriculado(estudante)
-    matriculas = Turmas.preload_all(matriculas, :disciplina)
-    {:ok, alt_agent} = Sapiens.Alteracoes.start_link(estudante)
-
+    response = Alteracoes.load(estudante)
+    
     {
       :ok,
       socket
       |> assign(collisions: %{})
+      |> assign(estudante: estudante)
       |> assign(disciplinas: disciplinas)
-      |> assign(horario: horario)
-      |> assign(matriculas: matriculas)
+      |> assign(horario: response.horario)
+      |> assign(matriculas: response.matriculas)
       |> assign(name: "Acerto")
-      |> assign(alt_agent: alt_agent)
+      |> assign(alt_agent: response.server)
       |> assign(alteracoes: [])
       |> build_message()
     }
   end
-
-  #
-  # @impl true
-  # def handle_params(%{"id" => id}, _uri, socket) do
-  #   socket =
-  #     socket
-  #     |> assign(:estudante_id, String.to_integer(id))
-  #
-  #   {:ok, estudante} = Estudantes.by_id(socket.assigns.estudante_id)
-  #   {:ok, disciplinas} = Estudantes.get_disciplinas(estudante)
-  #   {:ok, horario} = Estudantes.get_horarios(estudante)
-  #   {:ok, matriculas} = Estudantes.get_turmas_matriculado(estudante)
-  #   matriculas = Turmas.preload_all(matriculas, :disciplina)
-  #
-  #   {
-  #     :noreply,
-  #     socket
-  #     |> assign(disciplinas: disciplinas)
-  #     |> assign(horario: horario)
-  #     |> assign(matriculas: matriculas)
-  #     |> assign(name: "Acerto")
-  #   }
-  # end
 
   @impl true
   def handle_info(
@@ -96,15 +72,12 @@ defmodule SapiensWeb.AcertoLive do
       {:noreply, socket}
       # require IEx; IEx.pry
     else
-      {:ok, estudante} = Estudantes.by_id(socket.assigns.estudante_id)
-      {:ok, horario} = Estudantes.get_horarios(estudante)
-      {:ok, matriculas} = Estudantes.get_turmas_matriculado(estudante)
-      matriculas = Turmas.preload_all(matriculas, :disciplina)
+      response = Alteracoes.load(socket.assigns.estudante)
 
       socket =
         socket
-        |> assign(horario: horario)
-        |> assign(matricula: matriculas)
+        |> assign(horario: response.horario)
+        |> assign(matricula: response.matriculas)
 
       send_update(
         SapiensWeb.Components.CardDisciplina,
@@ -119,28 +92,10 @@ defmodule SapiensWeb.AcertoLive do
   end
 
   @impl true
-  def handle_info({:alt, %{agent: agent_pid}}, socket) do
+  def handle_info({:alt, %{agent: server_pid}}, socket) do
     {:noreply,
      socket
-     |> assign(alteracoes: Alteracoes.get(agent_pid))}
-  end
-
-  @impl true
-  def handle_event(
-        "hover_on_turma",
-        %{"turma_id" => turma_id, "estudante_id" => estudante_id},
-        socket
-      ) do
-    {:ok, turma} = Turmas.by_id(String.to_integer(turma_id))
-    {:ok, estudante} = Estudantes.by_id(String.to_integer(estudante_id))
-
-    case Acerto.validar_horario(estudante, turma) do
-      {:ok, _h} ->
-        {:noreply, socket}
-
-      {:error, _collisions} ->
-        {:noreply, socket}
-    end
+     |> assign(alteracoes: Alteracoes.get_all(server_pid))}
   end
 
   @impl true
@@ -152,7 +107,8 @@ defmodule SapiensWeb.AcertoLive do
 
   @impl true
   def handle_event("confirm", _params, socket) do
-    Sapiens.Alteracoes.clean(socket.assigns.alt_agent)
+    # require IEx; IEx.pry
+    Sapiens.Alteracoes.commit(socket.assigns.alt_agent)
     socket = assign(socket, alteracoes: [])
     {:noreply, socket}
   end
@@ -171,7 +127,7 @@ defmodule SapiensWeb.AcertoLive do
       <% end %>
       <div> <SapiensWeb.Alterations.render alteracoes={@alteracoes} /> </div>
       <div class="flex justify-center m-2" phx-click="confirm">
-      <SapiensWeb.Components.Button.confirm class="w-1/2" />
+      <SapiensWeb.Components.Button.confirm  class="w-1/2" />
       </div>
       <div class="flex flex-col md:flex-row m-2">
         <div class="md:w-1/2 md:h-screen">
@@ -186,9 +142,8 @@ defmodule SapiensWeb.AcertoLive do
               @socket
               module={SapiensWeb.Components.CardDisciplina}
               id={disciplina.id}
-              estudante_id={@estudante_id}
-              disciplina_id={disciplina.id}
-              codigo={disciplina.codigo}
+              disciplina={disciplina}
+              estudante={@estudante}
               matriculas={@matriculas}
             />
           <% end %>

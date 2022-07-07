@@ -137,6 +137,9 @@ defmodule Sapiens.Estudantes do
   """
   def get_horarios(estudante) do
     turmas = Enum.map(Repo.preload(estudante, :turmas).turmas, &Repo.preload(&1, :disciplina))
+    build_horario(turmas)
+  end
+  def build_horario(turmas) do
 
     {:ok,
      Enum.reduce(
