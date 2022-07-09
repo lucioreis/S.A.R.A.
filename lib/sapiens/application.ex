@@ -18,7 +18,8 @@ defmodule Sapiens.Application do
       SapiensWeb.Endpoint,
       # Start a worker by calling: Sapiens.Worker.start_link(arg)
       # {Sapiens.Worker, arg}
-      {Registry, keys: :unique, name: Registry.Acerto}
+      {Registry, keys: :unique, name: Registry.Acerto},
+      {Sapiens.Queue, name: Sapiens.Queue}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

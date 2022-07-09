@@ -12,6 +12,8 @@ defmodule SapiensWeb.AcertoLive do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    Phoenix.PubSub.subscribe(Sapiens.PubSub, "matricula")
+
     socket =
       socket
       |> assign(
@@ -30,13 +32,14 @@ defmodule SapiensWeb.AcertoLive do
     id = String.to_integer(id)
     {:ok, estudante} = Estudantes.by_id(id)
     {:ok, disciplinas} = Estudantes.get_disciplinas(estudante)
+
     socket =
       socket
       |> assign(:estudante_id, id)
       |> assign(:user_id, id)
 
     response = Alteracoes.load(estudante)
-    
+
     {
       :ok,
       socket
@@ -48,6 +51,7 @@ defmodule SapiensWeb.AcertoLive do
       |> assign(name: "Acerto")
       |> assign(alt_agent: response.server)
       |> assign(alteracoes: [])
+      |> assign(modal: :closed)
       |> build_message()
     }
   end
@@ -67,8 +71,9 @@ defmodule SapiensWeb.AcertoLive do
   end
 
   @impl true
-  def handle_info({:mat, %{disciplina_id: disciplina_id, sender: sender}}, socket) do
+  def handle_info({:mat, %{disciplina: disciplina, sender: sender}}, socket) do
     if sender == self() do
+      # IO.inspect({:mat, %{sender: sender}})
       {:noreply, socket}
       # require IEx; IEx.pry
     else
@@ -81,9 +86,9 @@ defmodule SapiensWeb.AcertoLive do
 
       send_update(
         SapiensWeb.Components.CardDisciplina,
-        id: disciplina_id,
-        disciplina_id: disciplina_id,
-        estudante_id: socket.assigns.estudante_id,
+        id: disciplina.id,
+        disciplina: disciplina,
+        estudante: socket.assigns.estudante,
         matriculas: socket.assigns.matriculas
       )
 
@@ -99,6 +104,25 @@ defmodule SapiensWeb.AcertoLive do
   end
 
   @impl true
+  def handle_info({:matricula, disciplina_id}, socket) do
+    case Enum.filter(socket.assigns.disciplinas, &(&1.id == disciplina_id)) do
+      [] ->
+        {:noreply, socket}
+
+      [disciplina] ->
+        send_update(
+          SapiensWeb.Components.CardDisciplina,
+          id: disciplina_id,
+          disciplina: disciplina,
+          estudante: socket.assigns.estudante,
+          matriculas: socket.assigns.matriculas
+        )
+
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
   def handle_event("dismiss_msg", _params, socket) do
     {:noreply,
      socket
@@ -107,49 +131,33 @@ defmodule SapiensWeb.AcertoLive do
 
   @impl true
   def handle_event("confirm", _params, socket) do
-    # require IEx; IEx.pry
     Sapiens.Alteracoes.commit(socket.assigns.alt_agent)
     socket = assign(socket, alteracoes: [])
+
+    for disciplina <- socket.assigns.disciplinas do
+      send_update(
+        SapiensWeb.Components.CardDisciplina,
+        id: disciplina.id,
+        disciplina: disciplina,
+        estudante: socket.assigns.estudante,
+        matriculas: socket.assigns.matriculas
+      )
+    end
+
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle_modal", _params, socket) do
+    if socket.assigns.modal == :closed do
+      {:noreply, assign(socket, modal: :opened)}
+    else
+      {:noreply, assign(socket, modal: :closed)}
+    end
   end
 
   defp build_message(socket) do
     socket
     |> assign(message: "This is another message!")
-  end
-
-  @impl true
-  def render(assigns) do
-    ~H"""
-    <div class="h-screen relative">
-      <%= if @message do %>
-        <SapiensWeb.Components.Message.render message={@message} />
-      <% end %>
-      <div> <SapiensWeb.Alterations.render alteracoes={@alteracoes} /> </div>
-      <div class="flex justify-center m-2" phx-click="confirm">
-      <SapiensWeb.Components.Button.confirm  class="w-1/2" />
-      </div>
-      <div class="flex flex-col md:flex-row m-2">
-        <div class="md:w-1/2 md:h-screen">
-          <SapiensWeb.Components.DisciplinasMatriculado.show matriculas={@matriculas} />
-
-          <Horario.render horario={@horario} collisions={@collisions} />
-        </div>
-
-        <div class="md:h-screen md:overflow-scroll bg-base-200 md:w-1/2 mt-2 my-2 md:ml-2 md:mt-0 flex flex-col gap-y-2">
-          <%= for disciplina <- @disciplinas do %>
-            <.live_component
-              @socket
-              module={SapiensWeb.Components.CardDisciplina}
-              id={disciplina.id}
-              disciplina={disciplina}
-              estudante={@estudante}
-              matriculas={@matriculas}
-            />
-          <% end %>
-        </div>
-      </div>
-    </div>
-    """
   end
 end

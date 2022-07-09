@@ -44,9 +44,9 @@ defmodule SapiensWeb.Components.Action do
             sync
           </div>
           <% end %>
-          <%= if registrado(@disciplina_id, @matriculas) and matriculado(@turma, @matriculas) do %>
+          <%= if registrado(@disciplina_id, @matriculas) and matriculado(@turma, @matriculas) and @clean do %>
           <div
-            phx-click={if @clean, do: "remove", else: "undo"}
+            phx-click={"remove"}
             phx-target={@target}
             phx-value-turma_numero={@turma.numero}
             phx-value-disciplina_id={@disciplina_id}
@@ -56,6 +56,19 @@ defmodule SapiensWeb.Components.Action do
             </span>
           </div>
           <% end %>
+          <%= if not @clean do %>
+          <div
+            phx-click={"undo"}
+            phx-target={@target}
+            phx-value-turma_numero={@turma.numero}
+            phx-value-disciplina_id={@disciplina_id}
+          >
+            <span class="material-symbols-outlined cursor-pointer hover:text-highlight">
+              undo
+            </span>
+          </div>
+          <% end %>
+
       <% end %>
     </div>
     """

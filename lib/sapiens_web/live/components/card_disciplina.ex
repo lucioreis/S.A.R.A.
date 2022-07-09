@@ -38,6 +38,8 @@ defmodule SapiensWeb.Components.CardDisciplina do
         %{"turma_numero" => turma_numero},
         socket
       ) do
+
+    turma_numero = String.to_integer(turma_numero)
     {
       :noreply,
       apply_action(
@@ -65,8 +67,15 @@ defmodule SapiensWeb.Components.CardDisciplina do
   @impl true
   def handle_event("undo", %{"disciplina_id" => disciplina_id}, socket) do
     disciplina_id = String.to_integer(disciplina_id)
-    Alteracoes.undo(socket.assigns.alt_agent, disciplina_id)
-    {:noreply, socket}
+    response = Alteracoes.undo(socket.assigns.alt_agent, disciplina_id)
+
+    {
+      :noreply,
+      socket
+      |> assign(:clean, Alteracoes.is_clean(socket.assigns.alt_agent, disciplina_id))
+      |> assign(matriculas: response.matriculas)
+      |> assign(horario: response.horario)
+    }
   end
 
   @impl true
@@ -78,28 +87,34 @@ defmodule SapiensWeb.Components.CardDisciplina do
      |> assign(:matriculado, assigns.matriculado)
      |> assign(:matriculas, assigns.matriculas)
      |> assign(:disciplina, assigns.disciplina)
+     |> assign(:turmas, assigns.turmas)
      |> assign(:clean, assigns.clean)
-    |> assign(:alt_agent, assigns.alt_agent)}
+     |> assign(:vagas, assigns.vagas)
+     |> assign(:alt_agent, assigns.alt_agent)}
   end
 
   @impl true
   def preload(list_of_assigns) do
     Enum.map(list_of_assigns, fn assigns ->
       disciplina = Disciplinas.preload(assigns.disciplina, :turmas)
+      turmas = disciplina.turmas
       response = Alteracoes.load(assigns.estudante)
       horario = response.horario
       matriculas = response.matriculas
       matriculado = matriculado?(assigns.matriculas, disciplina)
+      vagas = Sapiens.Queue.get_vagas(disciplina.id)
       alt_agent = response.server
       clean = Alteracoes.is_clean(alt_agent, disciplina.id)
 
       assigns
       |> Map.put(:disciplina, disciplina)
+      |> Map.put(:turmas, turmas)
       |> Map.put(:matriculas, matriculas)
       |> Map.put(:matriculado, matriculado)
       |> Map.put(:alt_agent, alt_agent)
       |> Map.put(:horario, horario)
       |> Map.put(:clean, clean)
+      |> Map.put(:vagas, vagas)
     end)
   end
 
@@ -110,8 +125,8 @@ defmodule SapiensWeb.Components.CardDisciplina do
   defp apply_action(action, socket, turma_numero) do
     response = Alteracoes.load(socket.assigns.estudante)
 
-    {:ok, turma} =
-      Turmas.get_by(disciplina_id: socket.assigns.disciplina.id, numero: turma_numero)
+    [turma] = Enum.filter(socket.assigns.disciplina.turmas, fn turma -> turma.numero == turma_numero end)
+    turma = Turmas.preload(turma, :disciplina)
 
     case Acerto.validar_horario(response.author, turma) do
       {:ok, _} ->
@@ -127,20 +142,9 @@ defmodule SapiensWeb.Components.CardDisciplina do
               turma: turma
             }
           )
-
-        send(self(), {:alt, %{agent: response.server}})
-
-        Phoenix.PubSub.broadcast(
-          Sapiens.PubSub,
-          "matricula",
-          {:mat,
-           %{
-             sender: self(),
-             disciplina_id: socket.assigns.disciplina.id
-           }}
-        )
-
+        
         matriculado = if action == :remove, do: false, else: true
+        send self(), {:alt, %{agent: response.server}}
 
         send(
           self(),
@@ -149,11 +153,13 @@ defmodule SapiensWeb.Components.CardDisciplina do
         )
 
         socket
-        |> assign(turma: turma)
         |> assign(matriculas: response.matriculas)
         |> assign(matriculado: matriculado)
         |> assign(commited: false)
-        |> assign(clean: Alteracoes.is_clean(response.server, socket.assigns.disciplina.id))
+        |> assign(:vagas, Sapiens.Queue.get_vagas(socket.assigns.disciplina.id))
+        |> assign(
+          clean: Alteracoes.is_clean(socket.assigns.alt_agent, socket.assigns.disciplina.id)
+        )
 
       {:error, collisions} ->
         send(

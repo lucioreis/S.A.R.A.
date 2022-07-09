@@ -54,7 +54,11 @@ defmodule Sapiens.Alteracoes do
   defp table(n) do
     case Registry.lookup(Registry.Acerto, :cache) do
       [] ->
-        case Registry.register(Registry.Acerto, :cache, :ets.new(:cache, [:set])) do
+        case Registry.register(
+               Registry.Acerto,
+               :cache,
+               :ets.new(:cache, [:set, :public, read_concurrency: true, write_concurrency: true])
+             ) do
           {:ok, _} -> table(n - 1)
           {:error, {_, ref}} -> ref
         end
@@ -64,12 +68,14 @@ defmodule Sapiens.Alteracoes do
     end
   end
 
-  defp get_state(estudante) do
-    {:ok, server} = start_link(estudante.id)
-    get_state(server, estudante)
+  def get_state(server) do
+    case :ets.lookup(table(), server) do
+      [] -> %State{}
+      [{_key, state}] -> state
+    end
   end
 
-  defp get_state(server, estudante) do
+  def get_state(server, estudante) do
     case :ets.lookup(table(), server) do
       [] ->
         sync_state(estudante)
@@ -80,6 +86,7 @@ defmodule Sapiens.Alteracoes do
   end
 
   defp set_state(server, state) do
+    table = table()
     :ets.insert(table(), {server, %State{state | server: server}})
     state
   end
@@ -105,9 +112,38 @@ defmodule Sapiens.Alteracoes do
   end
 
   def undo(server, disciplina_id) do
-    Map.delete(Agent.get(server, & &1), disciplina_id)
+    case Agent.get(server, fn reqs -> Map.get(reqs, disciplina_id) end) do
+      nil -> sync_state(get_state(server).author) |> IO.inspect(label: "STATE")
+      req -> 
+        Agent.update(server, fn reqs -> Map.delete(reqs, disciplina_id) end)
+
+
+        case req.action do
+          :add -> Sapiens.Queue.change_vagas({disciplina_id, req.turma.id}, +1)
+          :change -> Sapiens.Queue.change_vagas({disciplina_id, req.turma.id}, +1)
+          :remove -> nil
+        end
+
+        sync_state(req.author)
+        |> respond()
+        |> IO.inspect(label: "Response")
+      end
+    
   end
 
+  defp respond(state) do
+    %Response{
+      server: state.server,
+      author: state.author,
+      matriculas: state.matriculas,
+      horario: state.horario,
+      collisions: state.collisions,
+      errors: [],
+      commited: state.commited
+    }
+  end
+
+  # Requests API
   def start_link(id) do
     caso = Task.async(fn -> Registry.lookup(Registry.Acerto, id) end)
     caso = Task.await(caso)
@@ -127,6 +163,12 @@ defmodule Sapiens.Alteracoes do
       Map.put(reqs, req.disciplina.id, req)
     end)
 
+    case req.action do
+      :add -> Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
+      :change -> Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
+      _ -> nil
+    end
+
     load(req.author)
   end
 
@@ -136,7 +178,7 @@ defmodule Sapiens.Alteracoes do
     state =
       case get_all(server) do
         [] ->
-          state
+          %State{state | commited: true}
 
         reqs ->
           matriculas =
@@ -156,7 +198,11 @@ defmodule Sapiens.Alteracoes do
               end
             end)
 
-          %State{state | matriculas: matriculas}
+          %State{
+            state
+            | matriculas: matriculas,
+              commited: if(Enum.empty?(reqs), do: true, else: false)
+          }
       end
 
     matriculas = Turmas.preload_all(state.matriculas, :disciplina)
@@ -167,20 +213,10 @@ defmodule Sapiens.Alteracoes do
   def load(estudante) do
     {:ok, server} = start_link(estudante.id)
 
-    state =
-      server
-      |> get_state(estudante)
-      |> mats()
-
-    %Response{
-      server: state.server,
-      author: state.author,
-      matriculas: state.matriculas,
-      horario: state.horario,
-      collisions: state.collisions,
-      errors: [],
-      commited: state.commited
-    }
+    server
+    |> get_state(estudante)
+    |> mats()
+    |> respond()
   end
 
   def get_all(server) do
@@ -191,7 +227,6 @@ defmodule Sapiens.Alteracoes do
 
   def is_clean(server, disciplina_id) do
     case Map.get(Agent.get(server, & &1), disciplina_id) do
-      [] -> true
       nil -> true
       _ -> false
     end

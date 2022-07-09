@@ -41,4 +41,8 @@ defmodule Sapiens.Turmas do
   def preload_all(turmas, field) do
     Enum.map(turmas, &Repo.preload(&1, field))
   end
+
+  def preload(turma, field) do
+    Repo.preload(turma, field)
+  end
 end

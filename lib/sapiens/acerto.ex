@@ -1,6 +1,5 @@
 defmodule Sapiens.Acerto do
   import Ecto.Query, only: [from: 2], warn: false
-  use GenServer
 
   alias Sapiens.Cursos.{
           Estudante,
@@ -23,6 +22,22 @@ defmodule Sapiens.Acerto do
 
   alias Sapiens.Repo, warn: false
 
+  def reserva_vaga(turma) do
+    vaga(turma, 1)
+  end
+
+  def libera_vaga(turma) do
+    vaga(turma, -1)
+  end
+
+  defp vaga(turma, n) do
+    from(
+      t in Turma,
+      update: [inc: [vagas_disponiveis: ^(-n), vagas_preenchidas: ^(+n)]],
+      where: t.id == ^turma.id
+    )
+    |> Repo.update_all([])
+  end
 
   def adiciona(estudante, turma) do
     case Repo.get_by(Sapiens.Cursos.EstudanteTurma,
@@ -30,12 +45,7 @@ defmodule Sapiens.Acerto do
            estudante_id: estudante.id
          ) do
       nil ->
-        from(
-          t in Turma,
-          update: [inc: [vagas_disponiveis: -1, vagas_preenchidas: +1]],
-          where: t.id == ^turma.id
-        )
-        |> Repo.update_all([])
+        reserva_vaga(turma)
 
         %Sapiens.Cursos.EstudanteTurma{
           turma_id: turma.id,
@@ -58,12 +68,8 @@ defmodule Sapiens.Acerto do
         {:error, "Alguma coisa seria aconteceu"}
 
       estudante_turma ->
-        from(
-          t in Sapiens.Cursos.Turma,
-          update: [inc: [vagas_disponiveis: +1, vagas_preenchidas: -1]],
-          where: t.id == ^turma.id
-        )
-        |> Repo.update_all([])
+        reserva_vaga(turma) 
+        Sapiens.Queue.change_vagas({turma.disciplina_id, turma.id}, +1)
 
         Repo.delete(estudante_turma)
     end
