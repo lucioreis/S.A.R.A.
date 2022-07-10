@@ -22,7 +22,7 @@ defmodule SapiensWeb.Components.Action do
     ~H"""
     <div>
       <%= if @turma.vagas_disponiveis > 0  do %>
-         <%= if not registrado(@disciplina_id, @matriculas) and @clean do %>
+         <%= if not registrado(@disciplina_id, @matriculas) and not matriculado(@turma, @matriculas) and @clean do %>
           <div
             phx-click="add"
             phx-target={@target}

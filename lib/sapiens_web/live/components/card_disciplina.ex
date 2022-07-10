@@ -38,8 +38,8 @@ defmodule SapiensWeb.Components.CardDisciplina do
         %{"turma_numero" => turma_numero},
         socket
       ) do
-
     turma_numero = String.to_integer(turma_numero)
+
     {
       :noreply,
       apply_action(
@@ -68,6 +68,12 @@ defmodule SapiensWeb.Components.CardDisciplina do
   def handle_event("undo", %{"disciplina_id" => disciplina_id}, socket) do
     disciplina_id = String.to_integer(disciplina_id)
     response = Alteracoes.undo(socket.assigns.alt_agent, disciplina_id)
+
+    send(
+      self(),
+      {:updated_horario,
+       %{horario: response.horario, matriculas: response.matriculas, collisions: %{}}}
+    )
 
     {
       :noreply,
@@ -103,7 +109,10 @@ defmodule SapiensWeb.Components.CardDisciplina do
       matriculas = response.matriculas
       matriculado = matriculado?(assigns.matriculas, disciplina)
       vagas = Sapiens.Queue.get_vagas(disciplina.id)
-      alt_agent = response.server
+
+      alt_agent =
+        if response.server != nil, do: response.server, else: raise("Response.server is nil")
+
       clean = Alteracoes.is_clean(alt_agent, disciplina.id)
 
       assigns
@@ -125,7 +134,9 @@ defmodule SapiensWeb.Components.CardDisciplina do
   defp apply_action(action, socket, turma_numero) do
     response = Alteracoes.load(socket.assigns.estudante)
 
-    [turma] = Enum.filter(socket.assigns.disciplina.turmas, fn turma -> turma.numero == turma_numero end)
+    [turma] =
+      Enum.filter(socket.assigns.disciplina.turmas, fn turma -> turma.numero == turma_numero end)
+
     turma = Turmas.preload(turma, :disciplina)
 
     case Acerto.validar_horario(response.author, turma) do
@@ -142,15 +153,17 @@ defmodule SapiensWeb.Components.CardDisciplina do
               turma: turma
             }
           )
-        
-        matriculado = if action == :remove, do: false, else: true
-        send self(), {:alt, %{agent: response.server}}
+
+        matriculado = false #if action == :remove, do: false, else: false
+        send(self(), {:alt, %{agent: response.server}})
 
         send(
           self(),
           {:updated_horario,
            %{horario: response.horario, matriculas: response.matriculas, collisions: %{}}}
         )
+
+        IO.inspect(socket.assigns.alt_agent, label: "ALT_AGENT")
 
         socket
         |> assign(matriculas: response.matriculas)

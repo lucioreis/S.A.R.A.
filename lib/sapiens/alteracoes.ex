@@ -33,7 +33,9 @@ defmodule Sapiens.Alteracoes do
               horario: %{},
               collisions: %{},
               errors: [],
-              commited: false
+              commited: false,
+              included: [],
+              removed: []
   end
 
   defmodule State do
@@ -42,6 +44,8 @@ defmodule Sapiens.Alteracoes do
               author: nil,
               disciplinas: [],
               matriculas: [],
+              included: [],
+              removed: [],
               horario: nil,
               collisions: nil,
               commited: false
@@ -68,27 +72,89 @@ defmodule Sapiens.Alteracoes do
     end
   end
 
+  def build_state(server) do
+    state = %State{server: server}
+
+    Task.async(fn -> :ets.insert(table(), {server, state}) end)
+    |> Task.await()
+
+    state
+  end
+
   def get_state(server) do
     case :ets.lookup(table(), server) do
-      [] -> %State{}
+      [] -> build_state(server)
       [{_key, state}] -> state
     end
   end
 
-  def get_state(server, estudante) do
+  def get_state_and_sync(server, estudante) do
     case :ets.lookup(table(), server) do
       [] ->
         sync_state(estudante)
+        |> set_state()
 
       [{_key, state}] ->
         state
     end
   end
 
-  defp set_state(server, state) do
-    table = table()
-    :ets.insert(table(), {server, %State{state | server: server}})
+  defp set_state(state) do
+    :ets.insert(table(), {state.server, state})
     state
+  end
+
+  def update_state(state, req \\ nil) do
+    {included, removed} =
+      if req != nil do
+        changes(state, req)
+      else
+        {state.included, state.removed}
+      end
+
+    %State{
+      server: state.server,
+      author: if(req == nil, do: state.author, else: req.author),
+      disciplinas: state.disciplinas,
+      matriculas: state.matriculas,
+      horario: Estudantes.build_horario(state.matriculas),
+      commited: false,
+      included: included,
+      removed: removed
+    }
+  end
+
+  defp changes(state, req) do
+    case req.action do
+      :add ->
+        Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
+        removed = Enum.filter(state.removed, &(&1.id != req.turma.id))
+        included = Enum.filter(state.included, &(&1.id != req.turma.id)) ++ [req.turma]
+        {included, removed}
+
+      :remove ->
+        removed = Enum.filter(state.removed, &(&1.id != req.turma.id)) ++ [req.turma]
+        included = Enum.filter(state.included, &(&1.id != req.turma.id))
+        {included, removed}
+
+      :change ->
+        Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
+
+        removed =
+          Enum.filter(state.removed, &(&1.id != req.turma.id)) ++
+            Enum.filter(state.included, &(&1.disciplina_id == req.turma.disciplina_id))
+
+        included = Enum.filter(state.included, &(&1.id != req.turma.id)) ++ [req.turma]
+        {included, removed}
+
+      :undo ->
+        removed = Enum.filter(state.removed, &(&1.disciplina_id != req.turma.disciplina_id))
+        included = Enum.filter(state.included, &(&1.disciplina_id != req.turma.disciplina_id))
+        s = length(state.included) - length(included)
+        r = length(state.removed) - length(removed)
+        Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, s - r)
+        {included, removed}
+    end
   end
 
   defp sync_state(estudante) do
@@ -98,48 +164,50 @@ defmodule Sapiens.Alteracoes do
     matriculas = Turmas.preload_all(matriculas, :disciplina)
     {:ok, server} = start_link(estudante.id)
 
-    set_state(
-      server,
-      %State{
-        server: server,
-        author: estudante,
-        disciplinas: disciplinas,
-        matriculas: matriculas,
-        horario: horario,
-        commited: true
-      }
-    )
+    %State{
+      server: server,
+      author: estudante,
+      disciplinas: disciplinas,
+      matriculas: matriculas,
+      included: [],
+      removed: [],
+      horario: horario,
+      commited: true
+    }
   end
 
   def undo(server, disciplina_id) do
     case Agent.get(server, fn reqs -> Map.get(reqs, disciplina_id) end) do
-      nil -> sync_state(get_state(server).author) |> IO.inspect(label: "STATE")
-      req -> 
+      nil ->
+        sync_state(get_state(server).author) |> set_state()
+
+      req ->
         Agent.update(server, fn reqs -> Map.delete(reqs, disciplina_id) end)
 
-
-        case req.action do
-          :add -> Sapiens.Queue.change_vagas({disciplina_id, req.turma.id}, +1)
-          :change -> Sapiens.Queue.change_vagas({disciplina_id, req.turma.id}, +1)
-          :remove -> nil
-        end
-
-        sync_state(req.author)
+        server
+        |> get_state()
+        |> update_state(%Request{req | action: :undo})
+        |> set_state()
         |> respond()
-        |> IO.inspect(label: "Response")
-      end
-    
+    end
   end
 
   defp respond(state) do
+    IO.inspect(length(state.matriculas), label: "MATriculas")
+
+    matriculas = calc_mats(state, state.included, state.removed)
+    horario = Estudantes.build_horario(matriculas)
+
     %Response{
       server: state.server,
       author: state.author,
-      matriculas: state.matriculas,
-      horario: state.horario,
+      matriculas: matriculas,
+      horario: horario,
       collisions: state.collisions,
       errors: [],
-      commited: state.commited
+      commited: state.commited,
+      included: state.included,
+      removed: state.removed
     }
   end
 
@@ -163,59 +231,41 @@ defmodule Sapiens.Alteracoes do
       Map.put(reqs, req.disciplina.id, req)
     end)
 
-    case req.action do
-      :add -> Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
-      :change -> Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
-      _ -> nil
-    end
-
-    load(req.author)
+    server
+    |> get_state()
+    |> update_state(req)
+    |> set_state()
+    |> respond()
   end
 
-  defp mats(state) do
-    {:ok, server} = start_link(state.author.id)
+  defp calc_mats(state, included, removed) do
+    (state.matriculas -- removed) ++ included
 
-    state =
-      case get_all(server) do
-        [] ->
-          %State{state | commited: true}
-
-        reqs ->
-          matriculas =
-            Enum.reduce(reqs, state.matriculas, fn req, acc ->
-              case req.action do
-                :add ->
-                  acc ++ [req.turma]
-
-                :remove ->
-                  acc -- [req.turma]
-
-                :change ->
-                  Enum.filter(state.matriculas, fn turma ->
-                    turma.disciplina_id != req.turma.disciplina_id
-                  end) ++
-                    [req.turma]
-              end
-            end)
-
-          %State{
-            state
-            | matriculas: matriculas,
-              commited: if(Enum.empty?(reqs), do: true, else: false)
-          }
-      end
-
-    matriculas = Turmas.preload_all(state.matriculas, :disciplina)
-    {:ok, horario} = Estudantes.build_horario(matriculas)
-    set_state(server, %State{state | matriculas: matriculas, horario: horario})
+    # matriculas = Enum.reject(state.matriculas, fn turma -> turma.id in for(t <- state.removed, do: t) e  
+    # matriculas ++ state.included
   end
+
+  # defp mats(state) do
+  #   state =
+  #     case get_all(state.server) do
+  #       [] ->
+  #         %State{state | commited: true}
+  #
+  #       reqs ->
+  #         Enum.reduce(reqs, state, &Sapiens.Alteracoes.update_state(&2, &1))
+  #     end
+  #
+  #   matriculas = Turmas.preload_all(state.matriculas, :disciplina)
+  #   {:ok, horario} = Estudantes.build_horario(matriculas)
+  #   set_state(%State{state | matriculas: matriculas, horario: horario})
+  # end
 
   def load(estudante) do
     {:ok, server} = start_link(estudante.id)
 
     server
-    |> get_state(estudante)
-    |> mats()
+    |> get_state_and_sync(estudante)
+    |> update_state()
     |> respond()
   end
 
@@ -226,10 +276,13 @@ defmodule Sapiens.Alteracoes do
   end
 
   def is_clean(server, disciplina_id) do
-    case Map.get(Agent.get(server, & &1), disciplina_id) do
-      nil -> true
-      _ -> false
-    end
+    state = get_state(server)
+
+    Enum.empty?(
+      Enum.filter(state.included ++ state.removed, fn turma ->
+        turma.disciplina_id == disciplina_id
+      end)
+    )
   end
 
   def clean(server) do

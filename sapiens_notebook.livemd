@@ -16,7 +16,9 @@ alias Sapiens.{
   Disciplinas,
   Turmas,
   Acerto,
-  Plano
+  Plano,
+  Alteracoes,
+  Acerto
 }
 ```
 
@@ -32,7 +34,51 @@ LEFT OUTER JOIN estudantes
   ON disciplinas__estudantes.estudante_id = estudantes.ID
 """
 
-node()
+{:ok, one_t} = Turmas.by_id(1)
+{:ok, two_t} = Turmas.by_id(2)
+{:ok, three_t} = Turmas.by_id(6)
+{:ok, one_d} = Disciplinas.by_id(1)
+{:ok, two_d} = Disciplinas.by_id(2)
+
+req_add = %Alteracoes.Request{
+  client: nil,
+  author: nil,
+  action: :add,
+  disciplina: one_d,
+  time: nil,
+  turma: one_t
+}
+
+req_remove = %Alteracoes.Request{
+  client: nil,
+  author: nil,
+  action: :remove,
+  disciplina: one_d,
+  time: nil,
+  turma: one_t
+}
+
+req_troca = %Alteracoes.Request{
+  client: nil,
+  author: nil,
+  action: :change,
+  disciplina: two_d,
+  time: nil,
+  turma: two_t
+}
+
+%Alteracoes.State{
+  server: nil,
+  client: nil,
+  author: nil,
+  disciplinas: [],
+  matriculas: [],
+  horario: nil,
+  collisions: nil,
+  commited: false
+}
+|> Alteracoes.update_state(req_add)
+|> Alteracoes.update_state(req_remove)
 ```
 
 ### Teste get_turma_by_numero()
