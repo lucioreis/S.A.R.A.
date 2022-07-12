@@ -68,6 +68,13 @@ defmodule SapiensWeb.Components.CardDisciplina do
   def handle_event("undo", %{"disciplina_id" => disciplina_id}, socket) do
     disciplina_id = String.to_integer(disciplina_id)
     response = Alteracoes.undo(socket.assigns.alt_agent, disciplina_id)
+    alteracoes = Alteracoes.get_all(socket.assigns.alt_agent)
+    IO.inspect(alteracoes, label: "alteracoes")
+
+    matriculado =
+      disciplina_id in for(turma <- response.matriculas, do: turma.disciplina.id)
+
+    send(self(), {:alt, %{agent: response.server}})
 
     send(
       self(),
@@ -79,7 +86,9 @@ defmodule SapiensWeb.Components.CardDisciplina do
       :noreply,
       socket
       |> assign(:clean, Alteracoes.is_clean(socket.assigns.alt_agent, disciplina_id))
+      |> assign(:alteracoes, alteracoes)
       |> assign(matriculas: response.matriculas)
+      |> assign(matriculado: matriculado)
       |> assign(horario: response.horario)
     }
   end
@@ -96,7 +105,8 @@ defmodule SapiensWeb.Components.CardDisciplina do
      |> assign(:turmas, assigns.turmas)
      |> assign(:clean, assigns.clean)
      |> assign(:vagas, assigns.vagas)
-     |> assign(:alt_agent, assigns.alt_agent)}
+     |> assign(:alt_agent, assigns.alt_agent)
+    |> assign(:alteracoes, assigns.alteracoes)}
   end
 
   @impl true
@@ -107,7 +117,8 @@ defmodule SapiensWeb.Components.CardDisciplina do
       response = Alteracoes.load(assigns.estudante)
       horario = response.horario
       matriculas = response.matriculas
-      matriculado = matriculado?(assigns.matriculas, disciplina)
+      alteracoes = Alteracoes.get_all(response.server)
+      matriculado = matriculado?(response.matriculas, disciplina)
       vagas = Sapiens.Queue.get_vagas(disciplina.id)
 
       alt_agent =
@@ -123,6 +134,7 @@ defmodule SapiensWeb.Components.CardDisciplina do
       |> Map.put(:alt_agent, alt_agent)
       |> Map.put(:horario, horario)
       |> Map.put(:clean, clean)
+      |> Map.put(:alteracoes, alteracoes)
       |> Map.put(:vagas, vagas)
     end)
   end
@@ -139,50 +151,40 @@ defmodule SapiensWeb.Components.CardDisciplina do
 
     turma = Turmas.preload(turma, :disciplina)
 
-    case Acerto.validar_horario(response.author, turma) do
-      {:ok, _} ->
-        response =
-          Sapiens.Alteracoes.push(
-            response.server,
-            %Sapiens.Alteracoes.Request{
-              client: self(),
-              author: socket.assigns.estudante,
-              action: action,
-              disciplina: socket.assigns.disciplina,
-              time: :os.system_time(:millisecond),
-              turma: turma
-            }
-          )
+    response =
+      Sapiens.Alteracoes.push(
+        response.server,
+        %Sapiens.Alteracoes.Request{
+          client: self(),
+          author: socket.assigns.estudante,
+          action: action,
+          disciplina: socket.assigns.disciplina,
+          time: :os.system_time(:millisecond),
+          turma: turma
+        }
+      )
 
-        matriculado = false #if action == :remove, do: false, else: false
-        send(self(), {:alt, %{agent: response.server}})
+    matriculado =
+      turma.disciplina.codigo in for(turma <- response.matriculas, do: turma.disciplina.codigo)
 
-        send(
-          self(),
-          {:updated_horario,
-           %{horario: response.horario, matriculas: response.matriculas, collisions: %{}}}
-        )
+    send(self(), {:alt, %{agent: response.server}})
 
-        IO.inspect(socket.assigns.alt_agent, label: "ALT_AGENT")
+    send(
+      self(),
+      {:updated_horario,
+       %{
+         horario: response.horario,
+         matriculas: response.matriculas,
+         collisions: response.collisions
+       }}
+    )
 
-        socket
-        |> assign(matriculas: response.matriculas)
-        |> assign(matriculado: matriculado)
-        |> assign(commited: false)
-        |> assign(:vagas, Sapiens.Queue.get_vagas(socket.assigns.disciplina.id))
-        |> assign(
-          clean: Alteracoes.is_clean(socket.assigns.alt_agent, socket.assigns.disciplina.id)
-        )
-
-      {:error, collisions} ->
-        send(
-          self(),
-          {:updated_horario,
-           %{horario: response.horario, matriculas: response.matriculas, collisions: collisions}}
-        )
-
-        socket
-    end
+    socket
+    |> assign(matriculas: response.matriculas)
+    |> assign(matriculado: matriculado)
+    |> assign(commited: false)
+    |> assign(:vagas, Sapiens.Queue.get_vagas(socket.assigns.disciplina.id))
+    |> assign(clean: Alteracoes.is_clean(socket.assigns.alt_agent, socket.assigns.disciplina.id))
   end
 
   def dia_to_string(dia) do

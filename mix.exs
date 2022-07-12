@@ -52,7 +52,7 @@ defmodule Sapiens.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:elixir_sense, github: "elixir-lsp/elixir_sense"},
-    {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ecto_psql_extras, "~> 0.6"},
       {:surface, "~> 0.7.4"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false}

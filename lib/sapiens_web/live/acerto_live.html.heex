@@ -1,23 +1,21 @@
 <!-- lib/tutorial_web/live/demo_live.html.leex -->
 <div id="modal">
-  <%= if @modal != :closed do %>
-      <SapiensWeb.Components.Modal.render horario={@horario} />
-  <% end %>
+  <%= if @modal !=:closed do %>
+    <SapiensWeb.Components.Modal.render horario={@horario} included_horario={@included_horario}
+      removed_horario={@removed_horario} />
+    <% end %>
 </div>
 
 <div class="h-screen relative">
-  <%= if @message do %>
-    <SapiensWeb.Components.Message.render message={@message} />
-    <% end %>
-      <div>
-        <SapiensWeb.Alterations.render alteracoes={@alteracoes} />
-      </div>
       <div class="flex flex-col md:flex-row m-2">
         <div class="md:w-1/2 md:h-screen">
           <SapiensWeb.Components.DisciplinasMatriculado.show matriculas={@matriculas} />
 
           <Horario.render horario={@horario} collisions={@collisions} />
+          <SapiensWeb.Alterations.render alteracoes={@alteracoes} />
         </div>
+
+
 
         <div
           class="md:h-screen md:overflow-scroll bg-base-200 md:w-1/2 mt-2 my-2 md:ml-2 md:mt-0 flex flex-col gap-y-2">
@@ -32,5 +30,6 @@
                   disciplina={disciplina} estudante={@estudante} matriculas={@matriculas} />
                 <% end %>
         </div>
+
       </div>
 </div>

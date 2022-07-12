@@ -68,7 +68,7 @@ defmodule Sapiens.Acerto do
         {:error, "Alguma coisa seria aconteceu"}
 
       estudante_turma ->
-        reserva_vaga(turma) 
+        reserva_vaga(turma)
         Sapiens.Queue.change_vagas({turma.disciplina_id, turma.id}, +1)
 
         Repo.delete(estudante_turma)

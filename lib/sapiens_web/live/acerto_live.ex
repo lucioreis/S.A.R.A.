@@ -39,6 +39,7 @@ defmodule SapiensWeb.AcertoLive do
       |> assign(:user_id, id)
 
     response = Alteracoes.load(estudante)
+    alteracoes = Alteracoes.get_all(response.server)
 
     {
       :ok,
@@ -50,9 +51,8 @@ defmodule SapiensWeb.AcertoLive do
       |> assign(matriculas: response.matriculas)
       |> assign(name: "Acerto")
       |> assign(alt_agent: response.server)
-      |> assign(alteracoes: [])
+      |> assign(alteracoes: alteracoes)
       |> assign(modal: :closed)
-      |> build_message()
     }
   end
 
@@ -131,33 +131,44 @@ defmodule SapiensWeb.AcertoLive do
 
   @impl true
   def handle_event("confirm", _params, socket) do
-    Sapiens.Alteracoes.commit(socket.assigns.alt_agent)
-    socket = assign(socket, alteracoes: [])
+    state = Sapiens.Alteracoes.commit(socket.assigns.alt_agent)
+
+    socket =
+      assign(socket, alteracoes: [])
+      |> assign(socket, modal: :closed)
 
     for disciplina <- socket.assigns.disciplinas do
       send_update(
         SapiensWeb.Components.CardDisciplina,
         id: disciplina.id,
         disciplina: disciplina,
-        estudante: socket.assigns.estudante,
-        matriculas: socket.assigns.matriculas
+        estudante: state.author,
+        matriculas: state.matriculas
       )
     end
 
-    {:noreply, socket}
+    handle_event("toggle_modal", "", socket)
   end
 
   @impl true
   def handle_event("toggle_modal", _params, socket) do
+    state = Alteracoes.get_state(socket.assigns.alt_agent)
+    included_horario = Estudantes.build_horario(state.included)
+    removed_horario = Estudantes.build_horario(state.removed)
+
     if socket.assigns.modal == :closed do
-      {:noreply, assign(socket, modal: :opened)}
+      {:noreply,
+       socket
+       |> assign(modal: :opened)
+       |> assign(included_horario: included_horario)
+       |> assign(removed_horario: removed_horario)}
     else
       {:noreply, assign(socket, modal: :closed)}
     end
   end
 
-  defp build_message(socket) do
+  defp build_message(socket, msg \\ "") do
     socket
-    |> assign(message: "This is another message!")
+    |> assign(message: msg)
   end
 end

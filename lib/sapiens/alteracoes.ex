@@ -214,8 +214,6 @@ defmodule Sapiens.Alteracoes do
   end
 
   defp respond(state) do
-    IO.inspect(length(state.matriculas), label: "MATriculas")
-
     matriculas = calc_mats(state, state.included, state.removed)
     horario = build_horario(state)
 

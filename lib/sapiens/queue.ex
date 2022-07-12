@@ -17,7 +17,8 @@ defmodule Sapiens.Queue do
 
   @impl true
   def init(:ok) do
-      load_disciplinas()
+    load_disciplinas()
+
     {
       :ok,
       %{}
@@ -26,13 +27,14 @@ defmodule Sapiens.Queue do
 
   def disciplinas() do
     case Registry.lookup(Registry.Acerto, :disciplinas) do
-        [] ->
-          {:ok, pid} = Agent.start_link(fn -> %{} end)
-          Registry.register(Registry.Acerto, :disciplinas, pid)
-          pid
-        [{_pid, pid}] ->
-          pid
-      end
+      [] ->
+        {:ok, pid} = Agent.start_link(fn -> %{} end)
+        Registry.register(Registry.Acerto, :disciplinas, pid)
+        pid
+
+      [{_pid, pid}] ->
+        pid
+    end
   end
 
   def load_disciplinas() do
@@ -53,7 +55,7 @@ defmodule Sapiens.Queue do
   end
 
   def get_vagas(disciplina_id) do
-    Enum.reduce(Agent.get(disciplinas(), & &1), %{}, fn {{d_id, t_id}, value}, acc -> 
+    Enum.reduce(Agent.get(disciplinas(), & &1), %{}, fn {{d_id, t_id}, value}, acc ->
       if d_id == disciplina_id do
         Map.put_new(acc, {d_id, t_id}, value)
       else
@@ -67,24 +69,25 @@ defmodule Sapiens.Queue do
   end
 
   def change_vagas({disciplina_id, turma_id}, n) do
-    Agent.update(disciplinas(), fn state -> %{state | {disciplina_id, turma_id} => state[{disciplina_id, turma_id}] + n} end)
+    Agent.update(disciplinas(), fn state ->
+      %{state | {disciplina_id, turma_id} => state[{disciplina_id, turma_id}] + n}
+    end)
+
     Phoenix.PubSub.broadcast(Sapiens.PubSub, "matricula", {:matricula, disciplina_id})
   end
 
   def list_vagas(agent) do
-    IO.inspect(Agent.get(agent, & &1), label: "{disc_id, turma_id}=>vagas")
+    Agent.get(agent, & &1)
   end
 
-  
   def lnst_vagas() do
     list_vagas(:ets.first(disciplinas()))
   end
-  
 
   def run(request) do
     case request.action do
       :add -> change_vagas({request.disciplina.id, request.turma.id}, -1)
-      :change -> change_vagas({request.disciplina.id, request.turma.id}, -1) 
+      :change -> change_vagas({request.disciplina.id, request.turma.id}, -1)
       _ -> nil
     end
   end

@@ -4,20 +4,22 @@ defmodule SapiensWeb.Alterations do
   defp alterations_to_string(alteration) do
     case alteration.action do
       :change ->
-        "Trocando turma #{alteration.turma.numero} por #{alteration.turma.numero}"
+        "#{alteration.turma.disciplina.codigo}: Trocando para turma #{alteration.turma.numero}"
 
       :add ->
-        "Adicionando turma #{alteration.turma.numero}"
+        "#{alteration.turma.disciplina.codigo}: Adicionando turma #{alteration.turma.numero}"
 
       :remove ->
-        "Removendo turma #{alteration.turma.numero}"
-      true -> ""
+        "#{alteration.turma.disciplina.codigo}: Removendo turma #{alteration.turma.numero}"
+
+      true ->
+        ""
     end
   end
 
   def render(assigns) do
     ~H"""
-      <div> Alteracoes: </div>
+      <div class="text-lg text-light mt-2 text-highlight"> Alteracoes: </div>
       <%= for alt <- @alteracoes do %>
 
       <div class=""> <%= alterations_to_string(alt) %> </div>
