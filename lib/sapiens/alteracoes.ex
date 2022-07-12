@@ -47,7 +47,7 @@ defmodule Sapiens.Alteracoes do
               included: [],
               removed: [],
               horario: nil,
-              collisions: nil,
+              collisions: %{},
               commited: false
   end
 
@@ -105,11 +105,11 @@ defmodule Sapiens.Alteracoes do
   end
 
   def update_state(state, req \\ nil) do
-    {included, removed} =
+    {included, removed, collisions} =
       if req != nil do
         changes(state, req)
       else
-        {state.included, state.removed}
+        {state.included, state.removed, state.collisions}
       end
 
     %State{
@@ -117,8 +117,9 @@ defmodule Sapiens.Alteracoes do
       author: if(req == nil, do: state.author, else: req.author),
       disciplinas: state.disciplinas,
       matriculas: state.matriculas,
-      horario: Estudantes.build_horario(state.matriculas),
+      horario: build_horario(state),
       commited: false,
+      collisions: collisions,
       included: included,
       removed: removed
     }
@@ -127,34 +128,54 @@ defmodule Sapiens.Alteracoes do
   defp changes(state, req) do
     case req.action do
       :add ->
-        Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
-        removed = Enum.filter(state.removed, &(&1.id != req.turma.id))
-        included = Enum.filter(state.included, &(&1.id != req.turma.id)) ++ [req.turma]
-        {included, removed}
+        case validar_horario(state, req.turma) do
+          {:ok, _} ->
+            Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
+            removed = Enum.filter(state.removed, &(&1.id != req.turma.id))
+            included = Enum.filter(state.included, &(&1.id != req.turma.id)) ++ [req.turma]
+            {included, removed, state.collisions}
+
+          {:error, collisions} ->
+            {state.included, state.removed, collisions}
+        end
 
       :remove ->
         removed = Enum.filter(state.removed, &(&1.id != req.turma.id)) ++ [req.turma]
         included = Enum.filter(state.included, &(&1.id != req.turma.id))
-        {included, removed}
+        {included, removed, state.collisions}
 
       :change ->
-        Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
+        case validar_horario(state, req.turma) do
+          {:ok, _} ->
+            Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, -1)
 
-        removed =
-          Enum.filter(state.removed, &(&1.id != req.turma.id)) ++
-            Enum.filter(state.included, &(&1.disciplina_id == req.turma.disciplina_id))
+            removed =
+              Enum.filter(state.removed, &(&1.id != req.turma.id)) ++
+                Enum.filter(state.matriculas ++ state.included, &(&1.disciplina_id == req.turma.disciplina_id))
 
-        included = Enum.filter(state.included, &(&1.id != req.turma.id)) ++ [req.turma]
-        {included, removed}
+            included = Enum.filter(state.included, &(&1.id != req.turma.id)) ++ [req.turma]
+            {included, removed, state.collisions}
+
+          {:error, collisions} ->
+            {state.included, state.removed, collisions}
+        end
 
       :undo ->
-        removed = Enum.filter(state.removed, &(&1.disciplina_id != req.turma.disciplina_id))
-        included = Enum.filter(state.included, &(&1.disciplina_id != req.turma.disciplina_id))
-        s = length(state.included) - length(included)
-        r = length(state.removed) - length(removed)
-        Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, s - r)
-        {included, removed}
+        # Removes 'disciplina' from include and remove
+        removed = Enum.filter(state.removed, &(&1.disciplina_id == req.turma.disciplina_id))
+        included = Enum.filter(state.included, &(&1.disciplina_id == req.turma.disciplina_id))
+        new_removed = state.removed -- removed
+        new_included = state.included -- included
+        if req.turma.disciplina_id == 1000 do 
+          require IEx; IEx.pry
+        end
+        inc = Enum.count(included) 
+        # dec = Enum.count(removed)
+        Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, inc)
+        {new_included, new_removed, state.collisions}
+
     end
+
   end
 
   defp sync_state(estudante) do
@@ -196,7 +217,7 @@ defmodule Sapiens.Alteracoes do
     IO.inspect(length(state.matriculas), label: "MATriculas")
 
     matriculas = calc_mats(state, state.included, state.removed)
-    horario = Estudantes.build_horario(matriculas)
+    horario = build_horario(state)
 
     %Response{
       server: state.server,
@@ -310,11 +331,47 @@ defmodule Sapiens.Alteracoes do
         end
       end)
 
+    clean(server)
+
     if results != [] do
       sync_state(hd(alt_list).author)
+      |> set_state()
     end
+  end
 
-    clean(server)
-    results
+  defp validar_horario(state, turma) do
+    collisions =
+      Enum.reduce(build_horario(state), %{}, fn {{dia, hora}, body}, acc ->
+        case Map.get(turma.horario, <<dia, hora>>) do
+          nil ->
+            acc
+
+          value ->
+            if body["codigo"] != value["codigo"] do
+              Map.put(acc, {dia, hora}, body)
+            else
+              acc
+            end
+        end
+      end)
+
+    if Map.equal?(collisions, %{}), do: {:ok, state.horario}, else: {:error, collisions}
+  end
+
+  defp build_horario(state) do
+    turmas = calc_mats(state, state.included, state.removed)
+    
+
+    Enum.reduce(
+      turmas,
+      %{},
+      fn turma, horarios ->
+        Enum.reduce(
+          Sapiens.Turmas.get_horarios(turma),
+          horarios,
+          fn {key, value}, acc -> Map.put(acc, key, value) end
+        )
+      end
+    )
   end
 end
