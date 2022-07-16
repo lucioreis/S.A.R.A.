@@ -71,8 +71,7 @@ defmodule SapiensWeb.Components.CardDisciplina do
     alteracoes = Alteracoes.get_all(socket.assigns.alt_agent)
     IO.inspect(alteracoes, label: "alteracoes")
 
-    matriculado =
-      disciplina_id in for(turma <- response.matriculas, do: turma.disciplina.id)
+    matriculado = disciplina_id in for(turma <- response.matriculas, do: turma.disciplina.id)
 
     send(self(), {:alt, %{agent: response.server}})
 
@@ -106,7 +105,7 @@ defmodule SapiensWeb.Components.CardDisciplina do
      |> assign(:clean, assigns.clean)
      |> assign(:vagas, assigns.vagas)
      |> assign(:alt_agent, assigns.alt_agent)
-    |> assign(:alteracoes, assigns.alteracoes)}
+     |> assign(:alteracoes, assigns.alteracoes)}
   end
 
   @impl true

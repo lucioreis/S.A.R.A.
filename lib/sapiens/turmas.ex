@@ -16,8 +16,11 @@ defmodule Sapiens.Turmas do
 
   def by_id(id) do
     case Repo.get_by(Turma, id: id) do
-      nil -> {:error, "Turma não encontrada: id=#{id}"}
-      turma -> {:ok, turma}
+      nil ->
+        {:error, "Turma não encontrada: id=#{id}"}
+
+      turma ->
+        {:ok, turma}
     end
   end
 
@@ -44,5 +47,11 @@ defmodule Sapiens.Turmas do
 
   def preload(turma, field) do
     Repo.preload(turma, field)
+  end
+
+  def get_numero_alunos(turma) do
+  end
+
+  def get_average_grade(turma) do
   end
 end

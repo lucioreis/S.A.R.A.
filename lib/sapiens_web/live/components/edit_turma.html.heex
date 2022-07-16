@@ -1,0 +1,84 @@
+<div>
+  <!-- This example requires Tailwind CSS v2.0+ -->
+  <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!--
+        Background backdrop, show/hide based on modal state.
+
+        Entering: "ease-out duration-300"
+          From: "opacity-0"
+          To: "opacity-100"
+        Leaving: "ease-in duration-200"
+          From: "opacity-100"
+          To: "opacity-0"
+      -->
+    <div phx-click="toggle_modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+    <div class="fixed z-10 inset-0 overflow-y-auto">
+      <div class="flex items-center sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
+        <!--
+            Modal panel, show/hide based on modal state.
+
+            Entering: "ease-out duration-300"
+              From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              To: "opacity-100 translate-y-0 sm:scale-100"
+            Leaving: "ease-in duration-200"
+              From: "opacity-100 translate-y-0 sm:scale-100"
+              To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          -->
+        <.form let={f} for={@changeset} phx-change="validate" phx-submit="save" class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full">
+        <div
+          class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="flex sm:items-start flex-wrap">
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Adicionar Avaliação</h3>
+                <div class="mt-2">
+                  <!-- CONTENT -->
+                    <div class="flex items-center justify-between mb-2">
+                      <%= label f, :nome %>
+                      <%= text_input f, :nome %>
+                      <%= error_tag f, :nome %>
+                    </div>
+
+                    <div class="flex items-center justify-start gap-x-4 mb-2">
+                      <%= label f, :hora %>
+                      <%= time_input f, :hora %>
+                      <%= error_tag f, :hora %>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-2">
+                      <%= label f, :local %>
+                      <%= text_input f, :local %>
+                      <%= error_tag f, :local %>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-2">
+                      <%= label f, :ordem %>
+                      <%= number_input f, :ordem %>
+                      <%= error_tag f, :ordem %>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-2">
+                      <%= label f, :total %>
+                      <%= number_input f, :total %>
+                      <%= error_tag f, :total %>
+                    </div>
+
+
+                  <!-- END OF CONTENT -->
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <%= submit "Salvar", class: "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"   %>
+            <button type="button" phx-click="toggle_modal"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Retornar</button>
+          </div>
+        </div>
+        </.form>
+      </div>
+    </div>
+  </div>
+</div>

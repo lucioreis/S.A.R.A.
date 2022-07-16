@@ -8,6 +8,17 @@
   @apply grid place-items-center; 
 }
 
+
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+  from {
+    stroke-dashoffset: 500;
+  }
+}
+
 .material-icons.md-48 {
   font-size: 3rem;
 }

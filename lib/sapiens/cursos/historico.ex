@@ -39,9 +39,7 @@ defmodule Sapiens.Cursos.Historico do
       :notas,
       :conceito,
       :turma_pratica,
-      :turma_teorica,
-      :estudante_id,
-      :disciplina_id
+      :turma_teorica
     ])
     |> validate_required([:ano, :semestre])
     |> unique_constraint([:ano, :semestre, :disciplina_id, :estudante_id],

@@ -151,7 +151,10 @@ defmodule Sapiens.Alteracoes do
 
             removed =
               Enum.filter(state.removed, &(&1.id != req.turma.id)) ++
-                Enum.filter(state.matriculas ++ state.included, &(&1.disciplina_id == req.turma.disciplina_id))
+                Enum.filter(
+                  state.matriculas ++ state.included,
+                  &(&1.disciplina_id == req.turma.disciplina_id)
+                )
 
             included = Enum.filter(state.included, &(&1.id != req.turma.id)) ++ [req.turma]
             {included, removed, state.collisions}
@@ -166,16 +169,17 @@ defmodule Sapiens.Alteracoes do
         included = Enum.filter(state.included, &(&1.disciplina_id == req.turma.disciplina_id))
         new_removed = state.removed -- removed
         new_included = state.included -- included
-        if req.turma.disciplina_id == 1000 do 
-          require IEx; IEx.pry
+
+        if req.turma.disciplina_id == 1000 do
+          require IEx
+          IEx.pry()
         end
-        inc = Enum.count(included) 
+
+        inc = Enum.count(included)
         # dec = Enum.count(removed)
         Sapiens.Queue.change_vagas({req.disciplina.id, req.turma.id}, inc)
         {new_included, new_removed, state.collisions}
-
     end
-
   end
 
   defp sync_state(estudante) do
@@ -356,9 +360,8 @@ defmodule Sapiens.Alteracoes do
     if Map.equal?(collisions, %{}), do: {:ok, state.horario}, else: {:error, collisions}
   end
 
-  defp build_horario(state) do
+  def build_horario(state) do
     turmas = calc_mats(state, state.included, state.removed)
-    
 
     Enum.reduce(
       turmas,

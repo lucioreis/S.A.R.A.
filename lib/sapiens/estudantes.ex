@@ -128,6 +128,11 @@ defmodule Sapiens.Estudantes do
     end
   end
 
+  def get_avaliacoes(estudante, disciplina, ano, semestre) do
+    {:ok, historico} = get_historico(estudante, disciplina, ano, semestre)
+    historico.notas
+  end
+
   @doc """
   Retorna os horarios de aula de um estudante
   %{

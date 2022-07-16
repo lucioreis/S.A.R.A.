@@ -25,6 +25,28 @@ alias Sapiens.{
 ## Section
 
 ```elixir
+{:ok, prof} = Professores.by_id(1, [:disciplinas])
+{:ok, turma_one} = Turmas.by_id(2)
+{:ok, turma_two} = Turmas.by_id(6)
+{:ok, estudante} = Estudantes.by_id(2)
+turma_one = Repo.preload(turma_one, :disciplina)
+Plano.adiciona(estudante, turma_one.disciplina)
+
+teste = %{
+  total: 100,
+  nota: 0,
+  local: "PVA 123",
+  ordem: 1,
+  hora: 18
+}
+
+Sapiens.Historicos.create_teste(turma_one, {:P4, teste})
+|> Enum.map(fn changeset -> Repo.update!(changeset) end)
+
+Sapiens.Historicos.get_grades(estudante, turma_two)
+```
+
+```elixir
 """
 SELECT *
   FROM public.disciplinas

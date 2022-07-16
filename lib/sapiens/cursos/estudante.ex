@@ -38,6 +38,8 @@ defmodule Sapiens.Cursos.Estudante do
 
     has_many :enems, Sapiens.Cursos.Enem
 
+    has_many :historicos, Sapiens.Cursos.Historico
+
     belongs_to :curso, Sapiens.Cursos.Curso
   end
 

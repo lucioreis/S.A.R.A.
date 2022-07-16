@@ -50,6 +50,7 @@ defmodule Sapiens.Plano do
           conceito: "0",
           semestre: semestre,
           nota: 0,
+          notas: %{},
           turma_pratica: 0,
           turma_teorica: 0
         }

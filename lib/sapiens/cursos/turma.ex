@@ -21,6 +21,7 @@ defmodule Sapiens.Cursos.Turma do
     field :tipo, :string
     field :vagas_disponiveis, :integer
     field :vagas_preenchidas, :integer
+    field :local, :string
 
     timestamps()
 
@@ -39,10 +40,7 @@ defmodule Sapiens.Cursos.Turma do
       :tipo,
       :horario,
       :vagas_disponiveis,
-      :vagas_preenchidas,
-      :estudantes,
-      :disciplina,
-      :professor
+      :vagas_preenchidas
     ])
     |> validate_required([:numero, :tipo, :horario, :vagas_disponiveis, :vagas_preenchidas])
     |> unique_constraint(:id, name: :turmas_pkey)
