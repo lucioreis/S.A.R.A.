@@ -17,15 +17,15 @@ defmodule Sapiens.Cursos.Curso do
     }
   """
   schema "cursos" do
-    field :codigo, :integer
-    field :nome, :string
-    field :sigla, :string
+    field(:codigo, :integer)
+    field(:nome, :string)
+    field(:sigla, :string)
 
     timestamps()
 
-    has_many :estudantes, Sapiens.Cursos.Estudante
-    has_many :professores, Sapiens.Cursos.Professor
-    has_many :disciplinas, Sapiens.Cursos.Disciplina
+    has_many(:estudantes, Sapiens.Cursos.Estudante)
+    has_many(:professores, Sapiens.Cursos.Professor)
+    has_many(:disciplinas, Sapiens.Cursos.Disciplina)
   end
 
   @doc false

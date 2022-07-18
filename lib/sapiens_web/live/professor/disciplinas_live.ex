@@ -5,6 +5,7 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
   alias Sapiens.Turmas
   alias Sapiens.Disciplinas
   alias Sapiens.Professores
+  alias Sapiens.Historicos
   alias Sapiens.Repo
 
   @impl true
@@ -12,10 +13,21 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
     id = String.to_integer(id)
     {:ok, professor} = Professores.by_id(id, [:disciplinas, :turmas])
     turmas = for t <- professor.turmas, do: Repo.preload(t, :disciplina)
-    {:ok, selected_turma} = Turmas.by_id(2)
+    {:ok, selected_turma} = Turmas.by_id(1)
     selected_turma = Repo.preload(selected_turma, :estudantes)
     {:ok, alunos} = Turmas.get_all_estudantes(selected_turma)
     alunos = for aluno <- alunos, do: Repo.preload(aluno, :historicos)
+
+    media =
+      div(Enum.sum(for aluno <- alunos, do: Historicos.get_nota_final(aluno, selected_turma)),
+        case Enum.count(alunos) do
+          0 -> 1
+          n -> n
+        end)
+
+    menos = Enum.count(alunos, fn aluno ->   
+        Sapiens.Historicos.get_nota_final(aluno, selected_turma) < 60
+    end)
 
     {:ok,
      socket
@@ -34,7 +46,9 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
      |> assign(turmas: turmas)
      |> assign(alunos: alunos)
      |> assign(:toggle_edit_turma, false)
-     |> assign(media: 75)
+     |> assign(num_alunos: Enum.count(alunos))
+     |> assign(menos: menos)
+     |> assign(media: media)
      |> assign(disciplinas: professor.disciplinas)
      |> assign(selected_turma: selected_turma)}
   end
@@ -53,18 +67,36 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
 
   @impl true
   def handle_event("set_turma", %{"turma_id" => turma_id}, socket) do
+    IO.inspect(turma_id)
     {:ok, turma} = Turmas.by_id(String.to_integer(turma_id))
-    turma = Repo.preload(turma, [:estudantes, :disciplina])
+    turma = Repo.preload(turma, [:estudantes, :disciplina, :professor])
     alunos = for aluno <- turma.estudantes, do: Repo.preload(aluno, :historicos)
-
+    
     send_update(
       SapiensWeb.Live.Components.ListAlunos,
-      id: socket.assigns.professor.id,
+      id: turma.id,
       alunos: alunos,
       turma: turma
     )
 
-    {:noreply, assign(socket, selected_turma: turma)}
+    media =
+      div(Enum.sum(for aluno <- alunos, do: Historicos.get_nota_final(aluno, turma)),
+        case Enum.count(alunos) do
+          0 -> 1
+          n -> n
+        end)
+
+    menos = Enum.count(alunos, fn aluno ->   
+        Sapiens.Historicos.get_nota_final(aluno, turma) < 60
+    end)
+
+    {
+      :noreply, 
+      socket
+      |> assign(selected_turma: turma)
+      |> assign(media: media)
+      |> assign(menos: menos)
+    }
   end
 
   @impl true
@@ -90,15 +122,12 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
   @impl true
   def handle_event("edit_turma", %{"turma_id" => turma_id}, socket) do
     turma = Enum.find(socket.assigns.turmas, &(&1.id == String.to_integer(turma_id)))
-    turma = Repo.preload(turma, [:disciplina, :estudantes])
     socket = assign(socket, toggle_edit_turma: not socket.assigns.toggle_edit_turma)
-    IO.inspect(socket.assigns.toggle_edit_turma)
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("save", %{"avaliacao" => form}, socket) do
-    estudantes = socket.assigns.turma.estudantes
     %{"nome" => nome, "hora" => hora, "local" => local, "ordem" => ordem, "total" => total} = form
 
     teste = %{
@@ -110,7 +139,8 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
     }
 
     Sapiens.Historicos.create_teste(socket.assigns.turma, {nome, teste})
-    turma = Turmas.by_id(socket.assigns.turma.id) |> Repo.preload([:estudantes, :disciplina])
+    {:ok, turma} = Turmas.by_id(socket.assigns.turma.id)
+    turma = turma |> Repo.preload([:estudantes, :disciplina])
 
     send_update(
       SapiensWeb.Live.Components.ListAlunos,
@@ -127,5 +157,15 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
     {:noreply,
      socket
      |> assign(changeset: Sapiens.Cursos.Avaliacao.changeset(%Sapiens.Cursos.Avaliacao{}, form))}
+  end
+
+  @impl true
+  def handle_info({:update_media, media}, socket) do
+    {:noreply, socket |> assign(media: media)}
+  end
+
+  @impl true
+  def handle_info({:update_menos, menos}, socket) do
+    {:noreply, socket |> assign(menos: menos)}
   end
 end

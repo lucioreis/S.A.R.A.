@@ -1,81 +1,96 @@
 <div>
-<%= for grade <- @grades do %>
-  <div class="w-full">
-    <div class="flex flex-col w-[90%]  border border-b border-black rounded-md m-5">
-      <div class=" flex py-1 px-2 bg-highlight rounded-t-md text-base-100 justify-between">
-        <div>
-          <%= grade |> elem(0) %>
-        </div>
-        <div class="opacity-50"> Atualizado à <%= 
-              case elem(grade, 8) do   
-                {:minuto, min} -> "#{min} min"
-                {:hora, hora} -> "#{hora} hrs"
-                {:dia, dia} -> "#{dia} min"
-              end
-         %>
-      </div>
-      </div>
-
-      <div class="flex flex-col md:flex-row">
-
-        <div class="md:w-2/3 rounded-bl-md">
-
-          <div class="flex justify-between py-1 px-4 bg-base-400">
-            <div class="font-bold"> Avaliacoes </div>
-            <div class="text-black opacity-25"> Tipo de cálculo: M </div>
+  <%= for grade <- @grades do %>
+    <div class="w-full">
+      <div class="flex flex-col w-[90%]  border border-b border-black rounded-md m-5">
+        <div class=" flex py-1 px-2 bg-highlight rounded-t-md text-base-100 justify-between">
+          <div>
+            <%= grade |> elem(0) %>
           </div>
+          <div class="opacity-50">
+            Atualizado à <%= case elem(grade, 8) do
+              {:minuto, min} -> "#{min} min"
+              {:hora, hora} -> "#{hora} hrs"
+              {:dia, dia} -> "#{dia} min"
+            end %>
+          </div>
+        </div>
 
-          <div class="flex justify-between px-2  md:rounded-bl-md">
-            <div class="flex justify-start w-1/2 bg-base-100">
-              <%= for {test, value} <- elem(grade, 3) do %>
-                <div class="center w-9">
-                  <div>
-                    <%= test %>
+        <div class="flex flex-col md:flex-row">
+          <div class="md:w-2/3 rounded-bl-md">
+            <div class="flex justify-between py-1 px-4 bg-base-400">
+              <div class="font-bold">Avaliacoes</div>
+              <div class="text-black opacity-25">Tipo de cálculo: M</div>
+            </div>
+
+            <div class="flex justify-between px-2  md:rounded-bl-md">
+              <div class="flex justify-start w-1/2 bg-base-100">
+                <%= for {test, value} <- elem(grade, 3) do %>
+                  <div class="center w-9">
+                    <div>
+                      <%= test %>
+                    </div>
+                    <div class={"#{if value >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"}>
+                      <%= value %>
+                    </div>
                   </div>
-                  <div class ={"#{if value >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"}> <%=value %> </div>
+                <% end %>
+              </div>
+              <div class="flex bg-base-100">
+                <div class="center w-12">
+                  <div>Total</div>
+                  <div class={
+                    "#{if elem(grade, 4) >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
+                  }>
+                    <%= elem(grade, 4) %>
+                  </div>
                 </div>
-              <% end %>
-            </div>
-            <div class="flex bg-base-100">
-              <div class="center w-12">
-                <div> Total </div>
-                <div class ={"#{if elem(grade, 4) >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"}> <%=elem(grade, 4) %> </div>
-              </div>
-              <div class="center w-9">
-                <div> E.F </div>
-                <div> <%=elem(grade, 5) %> </div>
-              </div>
-              <div class="center w-9">
-                <div> N.F </div>
-                <div class ={"#{if elem(grade, 6) >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"}> <%=elem(grade, 6) %> </div>
+                <div class="center w-9">
+                  <div>E.F</div>
+                  <div><%= elem(grade, 5) %></div>
+                </div>
+                <div class="center w-9">
+                  <div>N.F</div>
+                  <div class={
+                    "#{if elem(grade, 6) >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
+                  }>
+                    <%= elem(grade, 6) %>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="md:w-1/3 rounded-br-md md:rounded-br-none">
-          <div class="flex justify-between">
-            <div class="h-8 w-[60%] center bg-base-300 font-bold "> <span>Faltas</span> </div>
-            <div class="w-[40%] text-xs center pl-2 bg-base-400 font-bold"> <span>Conceito/nota</span> </div>
-          </div>
-
-          <div class="h-3/5 flex">
-            <div class="flex w-[60%] ml-0 justify-center bg-base-400 rounded-bl-md md:rounded-bl-none">
-              <div class="center mr-2">
-                <div> Teóricas </div> <span> <%= elem(grade, 1) %> </span>
-              </div>
-              <!-- <div class="grid place-items-center"> -->
-              <div class="center">
-                <div> Práticas </div> <span> <%= elem(grade, 2) %> </span>
+          <div class="md:w-1/3 rounded-br-md md:rounded-br-none">
+            <div class="flex justify-between">
+              <div class="h-8 w-[60%] center bg-base-300 font-bold "><span>Faltas</span></div>
+              <div class="w-[40%] text-xs center pl-2 bg-base-400 font-bold">
+                <span>Conceito/nota</span>
               </div>
             </div>
 
-            <div class=" text-blue-500 text-3xl w-[40%] bg-base-100  rounded-br-md center font-bold">
-                <div class ={"#{if elem(grade, 7) >= 59.5 and elem(grade, 7) != "L", do: 'text-blue-500', else: 'text-red-500'}"}> <%=elem(grade, 7) %> </div>
+            <div class="h-3/5 flex">
+              <div class="flex w-[60%] ml-0 justify-center bg-base-400 rounded-bl-md md:rounded-bl-none">
+                <div class="center mr-2">
+                  <div>Teóricas</div>
+                  <span><%= elem(grade, 1) %></span>
+                </div>
+                <!-- <div class="grid place-items-center"> -->
+                <div class="center">
+                  <div>Práticas</div>
+                  <span><%= elem(grade, 2) %></span>
+                </div>
+              </div>
+
+              <div class=" text-blue-500 text-3xl w-[40%] bg-base-100  rounded-br-md center font-bold">
+                <div class={
+                  "#{if elem(grade, 7) >= 59.5 and elem(grade, 7) != "L", do: 'text-blue-500', else: 'text-red-500'}"
+                }>
+                  <%= elem(grade, 7) %>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <%end%>
+  <% end %>
 </div>

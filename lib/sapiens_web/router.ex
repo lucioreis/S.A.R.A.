@@ -28,7 +28,7 @@ defmodule SapiensWeb.Router do
     live("/pessoal", DadosPessoalLive)
     live("/plano-estudo", PlanoEstudoLive)
     live("/avaliacoes", AvaliacoesLive)
-    live "/demo", Demo
+    live("/demo", Demo)
   end
 
   scope "/professor", SapiensWeb do

@@ -5,7 +5,7 @@ defmodule SapiensWeb.Components.Horario do
     Show a student's schedulle.
   """
 
-  prop horario, :map, required: true
+  prop(horario, :map, required: true)
 
   def render(assigns) do
     ~F"""

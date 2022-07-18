@@ -4,7 +4,7 @@ defmodule SapiensWeb.UserSettingsController do
   alias Sapiens.Accounts
   alias SapiensWeb.UserAuth
 
-  plug :assign_email_and_password_changesets
+  plug(:assign_email_and_password_changesets)
 
   def edit(conn, _params) do
     render(conn, "edit.html")

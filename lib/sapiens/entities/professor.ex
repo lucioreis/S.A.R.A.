@@ -17,21 +17,22 @@ defmodule Sapiens.Entities.Professor do
   """
 
   schema "professores" do
-    field :matricula, :string
-    field :codigo, :integer
-    field :semestre, :integer
-    field :tipo_turma, :string
-    field :ano_ingresso, :integer
-    field :nome, :string
-    field :data_nascimento, :date
+    field(:matricula, :string)
+    field(:codigo, :integer)
+    field(:semestre, :integer)
+    field(:tipo_turma, :string)
+    field(:ano_ingresso, :integer)
+    field(:nome, :string)
+    field(:data_nascimento, :date)
 
     timestamps()
 
-    many_to_many :disciplinas, Sapiens.Cursos.Disciplina,
+    many_to_many(:disciplinas, Sapiens.Cursos.Disciplina,
       join_through: Sapiens.Cursos.DisciplinaProfessor
+    )
 
-    has_many :turmas, Sapiens.Cursos.Turma
-    belongs_to :curso, Sapiens.Cursos.Curso
+    has_many(:turmas, Sapiens.Cursos.Turma)
+    belongs_to(:curso, Sapiens.Cursos.Curso)
   end
 
   @doc false

@@ -19,11 +19,10 @@ defmodule SapiensWeb.Alterations do
 
   def render(assigns) do
     ~H"""
-      <div class="text-lg text-light mt-2 text-highlight"> Alteracoes: </div>
-      <%= for alt <- @alteracoes do %>
-
-      <div class=""> <%= alterations_to_string(alt) %> </div>
-      <% end %>
+    <div class="text-lg text-light mt-2 text-highlight">Alteracoes:</div>
+    <%= for alt <- @alteracoes do %>
+      <div class=""><%= alterations_to_string(alt) %></div>
+    <% end %>
     """
   end
 end

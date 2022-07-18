@@ -1,0 +1,32 @@
+<div>
+  <%= if @edit do %>
+  <.form let={f} id="notas" for={@notas} phx-submit="post_notas"
+    phx-target={@myself}>
+    <%= for key <- Map.keys(@provas) do %>
+      <%= unless key == :__struct__  or key == :id do %>
+        <div class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+          <p class="text-gray-900 whitespace-no-wrap w-8">
+            <%= text_input f, key, class: "w-8 p-0" %>
+          </p>
+        </div>
+      <% end %>
+    <% end %>
+  </.form>
+  <% else %>
+    <div>
+      <%= for key <- Map.keys(@provas) do %>
+        <%= unless key == :__struct__  or key == :id do %>
+          <%= "#{Atom.to_string(key)|> String.upcase(:ascii)}: #{Map.get(@provas, key)}" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+  <%= if not @edit do %>
+      <button phx-click="change_mode" phx-target={@myself}>Edit</button>
+      <% else %>
+        <button type="submit" form="notas"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+          Salvar
+        </button>
+  <% end %>
+</div>

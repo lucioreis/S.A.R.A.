@@ -8,7 +8,8 @@ defmodule Sapiens.Historicos do
           Disciplina,
           Enem,
           Historico,
-          Turma
+          Turma,
+          Status
         },
         warn: false
 
@@ -46,10 +47,29 @@ defmodule Sapiens.Historicos do
     end
   end
 
+  def get_nota_final(estudante, turma) do
+    ano_atual = Sapiens.Utils.ano_atual()
+    semestre_atual = Sapiens.Utils.semestre_atual()
+    turma = Repo.preload(turma, :disciplina)
+
+    Repo.get_by(Historico,
+      ano: ano_atual,
+      semestre: semestre_atual,
+      disciplina_id: turma.disciplina_id,
+      estudante_id: estudante.id
+    )
+    |> Map.get(:nota)
+    |> case do
+      nil -> 0
+      nota -> Decimal.to_integer(nota)
+    end
+  end
+
   def get_grades(estudante, turma) do
     ano_atual = Sapiens.Utils.ano_atual()
     semestre_atual = Sapiens.Utils.semestre_atual()
     turma = Repo.preload(turma, :disciplina)
+
 
     Repo.get_by(Historico,
       ano: ano_atual,
@@ -62,5 +82,24 @@ defmodule Sapiens.Historicos do
       nil -> %{}
       value -> value
     end
+  end
+
+  def set_historico_from_status(estudante_id, turma, status) do
+    Repo.get_by(
+      Sapiens.Cursos.Historico,
+      ano: Sapiens.Utils.ano_atual(),
+      semestre: Sapiens.Utils.semestre_atual(),
+      disciplina_id: turma.disciplina_id,
+      estudante_id: estudante_id
+    )  |> Ecto.Changeset.change(
+      %{
+        notas: status.provas,
+        nota: status.nf,
+        turma_pratica: status.fp,
+        turma_teorica: status.ft,
+        conceito: status.conceito
+      }
+    )|> IO.inspect() |> Repo.update()
+
   end
 end

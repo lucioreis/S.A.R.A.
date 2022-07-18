@@ -3,11 +3,11 @@ defmodule SapiensWeb.Components.ListItens do
 
   def unordered(assigns) do
     ~H"""
-      <ul>
-        <%= for entry <- @entries do %>
-          <li> <%= render_slot(@inner_block, entry) %> </li>
-        <% end %>
-      </ul>
+    <ul>
+      <%= for entry <- @entries do %>
+        <li><%= render_slot(@inner_block, entry) %></li>
+      <% end %>
+    </ul>
     """
   end
 end

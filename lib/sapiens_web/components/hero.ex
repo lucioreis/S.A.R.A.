@@ -7,13 +7,13 @@ defmodule SapiensWeb.Components.Hero do
   import SapiensWeb.Gettext
 
   @doc "The name"
-  prop name, :string, default: "Guest"
+  prop(name, :string, default: "Guest")
 
   @doc "The subtitle"
-  prop subtitle, :string
+  prop(subtitle, :string)
 
   @doc "The color"
-  prop color, :string, values!: ["danger", "info", "warning"]
+  prop(color, :string, values!: ["danger", "info", "warning"])
 
   def render(assigns) do
     ~F"""

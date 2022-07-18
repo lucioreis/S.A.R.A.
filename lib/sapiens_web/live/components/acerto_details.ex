@@ -2,7 +2,7 @@ defmodule SapiensWeb.Live.Components.AcertoDetails do
   use Surface.Component
 
   @doc "Lista de turmas onde o estudante está matriculado"
-  prop matriculas, :map, required: true
+  prop(matriculas, :map, required: true)
 
   def render(assigns) do
     ~F"""

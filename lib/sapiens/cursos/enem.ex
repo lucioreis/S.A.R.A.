@@ -3,12 +3,12 @@ defmodule Sapiens.Cursos.Enem do
   import Ecto.Changeset
 
   schema "enems" do
-    field :modalidade, :string
-    field :nota, :decimal
+    field(:modalidade, :string)
+    field(:nota, :decimal)
 
     timestamps()
 
-    belongs_to :estudante, Sapiens.Cursos.Estudante
+    belongs_to(:estudante, Sapiens.Cursos.Estudante)
   end
 
   @doc false

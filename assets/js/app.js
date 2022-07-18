@@ -42,6 +42,14 @@ let liveSocket = new LiveSocket("/live", Socket, {
     }
   }
 });
+liveSocket.hooks.useNotaProva = {
+  mounted() {
+    const phoenix = this;
+    const target = this.el.dataset.phoenixTarget;
+    const els = phoenix.el.querySelectorAll("input")
+    for (let el of els) { console.log(el.value) }
+  }
+}
 
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })

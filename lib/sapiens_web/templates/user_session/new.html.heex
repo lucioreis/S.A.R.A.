@@ -7,7 +7,6 @@
     <div class="w-full max-w-lg">
       <div class="leading-loose">
         <div class="max-w-sm m-4 p-10 bg-highlight-light bg-opacity-25 rounded shadow-xl">
-
           <.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user}>
             <%= if @error_message do %>
               <div class="alert alert-danger bg-base-100 text-red-500 py-2 my-4">
@@ -15,39 +14,46 @@
                   <%= @error_message %>
                 </p>
               </div>
-              <% end %>
+            <% end %>
 
-                <p class="text-white  text-center text-lg font-bold">LOGIN</p>
+            <p class="text-white  text-center text-lg font-bold">LOGIN</p>
 
-                <%= label f, :email, "E-mail", class: "text-white text-sm" %>
-                  <%= email_input f, :email, required: true, placeholder: "Digite o E-mail" ,
-                    class: "w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white" %>
+            <%= label(f, :email, "E-mail", class: "text-white text-sm") %>
+            <%= email_input(f, :email,
+              required: true,
+              placeholder: "Digite o E-mail",
+              class:
+                "w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white"
+            ) %>
 
-                    <%= label f, :password, "Senha" , class: "block  text-sm text-white" %>
-                      <%= password_input f, :password, required: true, placeholder: "Digite a sua senha",
-                        class: "w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white" %>
-                        <div class="mt-2">
+            <%= label(f, :password, "Senha", class: "block  text-sm text-white") %>
+            <%= password_input(f, :password,
+              required: true,
+              placeholder: "Digite a sua senha",
+              class:
+                "w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white"
+            ) %>
+            <div class="mt-2">
+              <%= label(f, :remember_me, "Lembrar ", class: "text-white text-sm") %>
+              <%= checkbox(f, :remember_me, class: "bg-gray-300") %>
+            </div>
 
-                          <%= label f, :remember_me, "Lembrar ", class: "text-white text-sm" %>
-                            <%= checkbox f, :remember_me, class: "bg-gray-300" %>
-                        </div>
-
-                        <div class="mt-4 px-4 py-1 text-white font-light tracking-wider bg-highlight hover:bg-highlight-dark rounded center">
-                          <%= submit "Entrar" %>
-                        </div>
-
-
+            <div class="mt-4 px-4 py-1 text-white font-light tracking-wider bg-highlight hover:bg-highlight-dark rounded center">
+              <%= submit("Entrar") %>
+            </div>
           </.form>
           <div class="mt-4 items-center flex justify-between">
-            <span class="inline-block right-0 align-baseline font-bold text-sm text-500 text-white hover:text-red-400"
-            > <%= link "Esqueceu a senha?", to: Routes.user_reset_password_path(@conn, :new) %></span>
+            <span class="inline-block right-0 align-baseline font-bold text-sm text-500 text-white hover:text-red-400">
+              <%= link("Esqueceu a senha?", to: Routes.user_reset_password_path(@conn, :new)) %>
+            </span>
           </div>
           <div class="text-center">
             <a class="inline-block right-0 align-baseline font-light text-sm text-500 hover:text-red-400">
-              <%= link "Criar uma conta(test Only)", to: Routes.user_registration_path(@conn, :new) %>
+              <%= link("Criar uma conta(test Only)",
+                to: Routes.user_registration_path(@conn, :new)
+              ) %>
             </a>
           </div>
-
         </div>
       </div>
     </div>

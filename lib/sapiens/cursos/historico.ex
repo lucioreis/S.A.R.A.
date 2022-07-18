@@ -15,18 +15,18 @@ defmodule Sapiens.Cursos.Historico do
     }
   """
   schema "historicos" do
-    field :ano, :integer
-    field :conceito, :string
-    field :semestre, :integer
-    field :nota, :decimal
-    field :notas, :map
-    field :turma_pratica, :integer
-    field :turma_teorica, :integer
+    field(:ano, :integer)
+    field(:conceito, :string)
+    field(:semestre, :integer)
+    field(:nota, :decimal)
+    field(:notas, :map)
+    field(:turma_pratica, :integer)
+    field(:turma_teorica, :integer)
 
     timestamps()
 
-    belongs_to :estudante, Sapiens.Cursos.Estudante
-    belongs_to :disciplina, Sapiens.Cursos.Disciplina
+    belongs_to(:estudante, Sapiens.Cursos.Estudante)
+    belongs_to(:disciplina, Sapiens.Cursos.Disciplina)
   end
 
   @doc false

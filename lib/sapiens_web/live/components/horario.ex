@@ -32,7 +32,9 @@ defmodule SapiensWeb.Live.Components.Horario do
                 <%= for day <- 1..6 do %>
                   <td>
                     <%= if @horario[{day, time}] do %>
-                      <span class={if @collisions[{day, time}], do: "text-red-500", else: "text-black"}>
+                      <span class={
+                        if @collisions[{day, time}], do: "text-red-500", else: "text-black"
+                      }>
                         <p class="font-bold">
                           <%= @horario[{day, time}]["codigo"] %>
                         </p>
@@ -40,11 +42,11 @@ defmodule SapiensWeb.Live.Components.Horario do
                           <%= @horario[{day, time}]["local"] %>
                         </p>
                       </span>
-                     <% else %>
+                    <% else %>
                       <p class="text-gray-400">
                         --
                       </p>
-                  <% end %>
+                    <% end %>
                   </td>
                 <% end %>
               </tr>

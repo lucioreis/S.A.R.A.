@@ -1,5 +1,11 @@
 <header>
-  <.live_component module={SapiensWeb.Components.Navbar} id={:navbar_2} name={@name} user_id={@user_id} class="shadow-black shadow-lg" />
+  <.live_component
+    module={SapiensWeb.Components.Navbar}
+    id={:navbar_2}
+    name={@name}
+    user_id={@user_id}
+    class="shadow-black shadow-lg"
+  />
 </header>
 <main id="main" class="bg-base-100">
   <div class="drawer drawer-mobile">
@@ -18,28 +24,27 @@
           <%= for menu_option <- @menu_options do %>
             <li>
               <%= live_patch to: elem(menu_option, 2).(@socket) do %>
-                <span
-                  class="flex hover:bg-highlight-light hover:text-base-100 justify-start items-center text-1xl border-b border-primary py-2">
+                <span class="flex hover:bg-highlight-light hover:text-base-100 justify-start items-center text-1xl border-b border-primary py-2">
                   <span class="material-icons">
                     <%= elem(menu_option, 0) %>
-                  </span> <span class="ml-2 font-bold">
+                  </span>
+
+                  <span class="ml-2 font-bold">
                     <%= elem(menu_option, 1) %>
                   </span>
                 </span>
-                <% end %>
-            </li>
-            <% end %>
               <% end %>
-                <li>
-                  <%= live_redirect to: Routes.page_path(@socket, :index) do %>
-                    <span
-                      class="flex hover:bg-highlight-light hover:text-base-100 justify-start items-center text-1xl border-b border-primary py-2">
-                      <span class="material-icons"> close </span> <span class="ml-2 font-bold"> Saír </span>
-                    </span>
-                  <% end %>
-                </li>
+            </li>
+          <% end %>
+        <% end %>
+        <li>
+          <%= live_redirect to: Routes.page_path(@socket, :index) do %>
+            <span class="flex hover:bg-highlight-light hover:text-base-100 justify-start items-center text-1xl border-b border-primary py-2">
+              <span class="material-icons">close</span> <span class="ml-2 font-bold">Saír</span>
+            </span>
+          <% end %>
+        </li>
       </ul>
     </div>
-
   </div>
 </main>

@@ -2,14 +2,20 @@
   <!-- component -->
   <div class="center">
     <!--style='border-bottom: 2px solid #eaeaea'> -->
-    <ul class='flex cursor-pointer w-full'>
+    <ul class="flex cursor-pointer w-full">
       <%= for disciplina <- @professor.disciplinas do %>
-        <li class={"py-2 px-6 text-base-100 #{if(@disciplina.id==disciplina.id, do: "bg-highlight" ,
-          else: "bg-slate-200 text-slate-600" )} rounded-t-lg"}>
-          <%= live_patch disciplina.codigo, to: Routes.live_path( @socket, SapiensWeb.Professor.DisciplinasLive, %{id:
-            @professor.id, d_id: disciplina.id }) %>
+        <li class={"py-2 px-6 text-base-100 #{if(@disciplina.id == disciplina.id,
+          do: "bg-highlight",
+          else: "bg-slate-200 text-slate-600")} rounded-t-lg"}>
+          <%= live_redirect(disciplina.codigo,
+            to:
+              Routes.live_path(@socket, SapiensWeb.Professor.DisciplinasLive, %{
+                id: @professor.id,
+                d_id: disciplina.id
+              })
+          ) %>
         </li>
-        <% end %>
+      <% end %>
     </ul>
 
     <div class="bg-highlight text-base-100 w-full p-2">
@@ -18,25 +24,29 @@
     <div>
       <ul class="inline-flex -space-x-px mt-2">
         <%= for turma <- @turmas do %>
-          <%= if turma.id !=@selected_turma and turma.disciplina.id==@disciplina.id do %>
+          <%= if turma.id != @selected_turma.id and turma.disciplina.id==@disciplina.id do %>
             <li>
               <div
                 class="bg-white border border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700 leading-tight py-2 px-3 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                phx-click="set_turma" phx-value-turma_id={turma.id}>
+                phx-click="set_turma"
+                phx-value-turma_id={turma.id}
+              >
                 <%= turma.numero %>
               </div>
             </li>
-            <% end %>
-              <%= if turma.id==@selected_turma and turma.disciplina.id==@disciplina.id do %>
-                <li>
-                  <div
-                    class="bg-blue-50 border border-gray-300 text-blue-600 hover:bg-blue-100 hover:text-blue-700  py-2 px-3 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                    phx-click="set_turma" phx-value-turma_id={turma.id}>
-                    <%= turma.numero %>
-                  </div>
-                </li>
-                <% end %>
-                  <% end %>
+          <% end %>
+          <%= if turma.id==@selected_turma.id and turma.disciplina.id==@disciplina.id do %>
+            <li>
+              <div
+                class="bg-blue-50 border border-gray-300 text-blue-600 hover:bg-blue-100 hover:text-blue-700 leading-tight py-2 px-3 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                phx-click="set_turma"
+                phx-value-turma_id={turma.id}
+              >
+                <%= turma.numero %>
+              </div>
+            </li>
+          <% end %>
+        <% end %>
       </ul>
     </div>
   </div>
@@ -44,26 +54,48 @@
   <div id="content" class="flex flex-col">
     <div class="h-5" />
     <div class="flex justify-between text-blue-800 mx-4">
-      <div class="center"> Número de Alunos <span>
-          <SapiensWeb.Components.Gauge.render value={12} total={50} />
-        </span> </div>
-      <div class="center"> Avaliações Realizadas <span>
-          <SapiensWeb.Components.Gauge.render value={2} total={3} />
-        </span> </div>
-      <div class="center"> Média <span>
+      <div class="center">
+        Número de Alunos
+        <span>
+          <SapiensWeb.Components.Gauge.render value={@num_alunos} total={50} />
+        </span>
+      </div>
+      <div class="center">
+        Avaliações
+        <span>
+          <SapiensWeb.Components.Gauge.render value={4} total={7} />
+        </span>
+      </div>
+      <div class="center">
+        Média
+        <span>
           <SapiensWeb.Components.Gauge.render value={@media} total={100} />
-        </span> </div>
-      <div class="center"> Alunos com menos de 60% <span>
-          <SapiensWeb.Components.Gauge.render value={0} total={50} />
-        </span> </div>
+        </span>
+      </div>
+      <div class="center">
+        Alunos com menos de 60%
+        <span>
+          <SapiensWeb.Components.Gauge.render value={@menos} total={50} />
+        </span>
+      </div>
     </div>
     <div class="h-5" />
-    <div class="border-2 border-bottom border-blue-900"> </div>
+    <div class="border-2 border-bottom border-blue-900"></div>
   </div>
   <!-- component -->
-  <.live_component @socket module={SapiensWeb.Live.Components.ListAlunos} alunos={@alunos} id={@professor.id}
-    turma={@selected_turma} />
-  <%= if @toggle_edit_turma do%>
-    <.live_component @socket module={SapiensWeb.Live.Components.EditTurma} turma={@turma} id={@turma.id} />
+  <.live_component
+    @socket
+    module={SapiensWeb.Live.Components.ListAlunos}
+    alunos={@alunos}
+    id={@selected_turma.id}
+    turma={@selected_turma}
+  />
+  <%= if @toggle_edit_turma do %>
+    <.live_component
+      @socket
+      module={SapiensWeb.Live.Components.EditTurma}
+      turma={@turma}
+      id={@turma.id}
+    />
   <% end %>
 </div>

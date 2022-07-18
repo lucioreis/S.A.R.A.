@@ -20,25 +20,25 @@ defmodule Sapiens.Entities.Estudante do
     }
   """
   schema "estudantes" do
-    field :ano_ingresso, :integer
-    field :ano_saida, :integer
-    field :cidade, :string
-    field :estado, :string
-    field :forma_ingresso, :string
-    field :idade, :integer
-    field :matricula, :string
-    field :situacao, :string
-    field :nome, :string
+    field(:ano_ingresso, :integer)
+    field(:ano_saida, :integer)
+    field(:cidade, :string)
+    field(:estado, :string)
+    field(:forma_ingresso, :string)
+    field(:idade, :integer)
+    field(:matricula, :string)
+    field(:situacao, :string)
+    field(:nome, :string)
 
     timestamps()
 
-    many_to_many :disciplinas, Sapiens.Cursos.Disciplina, join_through: Sapiens.Cursos.Historico
+    many_to_many(:disciplinas, Sapiens.Cursos.Disciplina, join_through: Sapiens.Cursos.Historico)
 
-    many_to_many :turmas, Sapiens.Cursos.Turma, join_through: Sapiens.Cursos.EstudanteTurma
+    many_to_many(:turmas, Sapiens.Cursos.Turma, join_through: Sapiens.Cursos.EstudanteTurma)
 
-    has_many :enems, Sapiens.Cursos.Enem
+    has_many(:enems, Sapiens.Cursos.Enem)
 
-    belongs_to :curso, Sapiens.Cursos.Curso
+    belongs_to(:curso, Sapiens.Cursos.Curso)
   end
 
   @doc false

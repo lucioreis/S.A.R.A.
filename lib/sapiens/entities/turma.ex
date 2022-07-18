@@ -16,19 +16,20 @@ defmodule Sapiens.Entities.Turma do
   """
 
   schema "turmas" do
-    field :horario, :map
-    field :numero, :integer
-    field :tipo, :string
-    field :vagas_disponiveis, :integer
-    field :vagas_preenchidas, :integer
+    field(:horario, :map)
+    field(:numero, :integer)
+    field(:tipo, :string)
+    field(:vagas_disponiveis, :integer)
+    field(:vagas_preenchidas, :integer)
 
     timestamps()
 
-    many_to_many :estudantes, Sapiens.Cursos.Estudante,
+    many_to_many(:estudantes, Sapiens.Cursos.Estudante,
       join_through: Sapiens.Cursos.EstudanteTurma
+    )
 
-    belongs_to :disciplina, Sapiens.Cursos.Disciplina
-    belongs_to :professor, Sapiens.Cursos.Professor
+    belongs_to(:disciplina, Sapiens.Cursos.Disciplina)
+    belongs_to(:professor, Sapiens.Cursos.Professor)
   end
 
   @doc false

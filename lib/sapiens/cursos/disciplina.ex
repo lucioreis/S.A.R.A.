@@ -22,19 +22,19 @@ defmodule Sapiens.Cursos.Disciplina do
    
   """
   schema "disciplinas" do
-    field :carga, :integer
-    field :codigo, :string
-    field :nome, :string
-    field :pre_requisitos, {:array, :string}
-    field :co_requisitos, {:array, :string}
+    field(:carga, :integer)
+    field(:codigo, :string)
+    field(:nome, :string)
+    field(:pre_requisitos, {:array, :string})
+    field(:co_requisitos, {:array, :string})
 
     timestamps()
 
-    many_to_many :estudantes, Sapiens.Cursos.Estudante, join_through: Sapiens.Cursos.Historico
+    many_to_many(:estudantes, Sapiens.Cursos.Estudante, join_through: Sapiens.Cursos.Historico)
 
-    has_many :turmas, Sapiens.Cursos.Turma
+    has_many(:turmas, Sapiens.Cursos.Turma)
 
-    belongs_to :curso, Sapiens.Cursos.Curso
+    belongs_to(:curso, Sapiens.Cursos.Curso)
   end
 
   @doc false

@@ -3,7 +3,7 @@ defmodule SapiensWeb.UserResetPasswordController do
 
   alias Sapiens.Accounts
 
-  plug :get_user_by_reset_password_token when action in [:edit, :update]
+  plug(:get_user_by_reset_password_token when action in [:edit, :update])
 
   def new(conn, _params) do
     render(conn, "new.html")

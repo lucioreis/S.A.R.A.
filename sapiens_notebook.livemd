@@ -27,8 +27,8 @@ alias Sapiens.{
 ```elixir
 {:ok, prof} = Professores.by_id(1, [:disciplinas])
 {:ok, turma_one} = Turmas.by_id(2)
-{:ok, turma_two} = Turmas.by_id(6)
-{:ok, estudante} = Estudantes.by_id(2)
+{:ok, turma_two} = Turmas.by_id(2)
+{:ok, estudante} = Estudantes.by_id(1)
 turma_one = Repo.preload(turma_one, :disciplina)
 Plano.adiciona(estudante, turma_one.disciplina)
 
@@ -40,10 +40,13 @@ teste = %{
   hora: 18
 }
 
-Sapiens.Historicos.create_teste(turma_one, {:P4, teste})
-|> Enum.map(fn changeset -> Repo.update!(changeset) end)
+# Sapiens.Historicos.create_teste(turma_one, {:P4, teste})
+# |> Enum.map(fn changeset -> Repo.update!(changeset) end)
 
-Sapiens.Historicos.get_grades(estudante, turma_two)
+status = Sapiens.Estudantes.get_status(estudante, turma_two)
+%{status | ef: 80, ft: 16} |> Sapiens.Estudantes.update_status()
+final_grade = Sapiens.Historicos.get_nota_final(estudante, turma_two)
+Sapiens.Historicos.set_historico_from_status(estudante.id, turma_two, status)
 ```
 
 ```elixir

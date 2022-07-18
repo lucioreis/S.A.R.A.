@@ -1,6 +1,0 @@
-set PGPASSWORD="57ihqhauDC4IzbzCAwIk"
-set PGUSER="postgres"
-set PGPORT="6173"
-set PGDATABASE="railway"
-set PGHOST="containers-us-west-82.railway.app"
-export DATABASE_URL="postgresql://postgres:57ihqhauDC4IzbzCAwIk@containers-us-west-82.railway.app:6173/railway"

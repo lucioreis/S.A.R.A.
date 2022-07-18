@@ -9,7 +9,8 @@ defmodule Sapiens.Estudantes do
           Disciplina,
           Enem,
           Historico,
-          Turma
+          Turma,
+          Status
         },
         warn: false
 
@@ -157,5 +158,63 @@ defmodule Sapiens.Estudantes do
         )
       end
     )
+  end
+
+  def get_status(estudante, turma) do
+    turma = turma |> Repo.preload(:disciplina)
+    {:ok, historico} = get_historico(estudante, turma.disciplina)
+    notas = historico.notas || %{}
+    numer_of_testes = notas |> Map.keys() |> Enum.count() 
+    nota_final = div(Enum.reduce(notas, 0, fn {_nome, body}, acc ->
+       body["nota"] + acc
+    end), if(numer_of_testes == 0, do: 1, else: numer_of_testes))
+    conceito = 
+      if (historico.turma_teorica > 15) do
+      "L"
+      else
+        if (historico.nota > 0) do
+          Decimal.div(Decimal.add(historico.nota, nota_final), 2) |> Decimal.to_string()
+        else
+          nota_final |> Integer.to_string()
+        end
+      end
+    %Sapiens.Cursos.Status{
+      nome: estudante.nome,
+      matricula: estudante.matricula,
+      provas: notas,
+      ft: historico.turma_teorica,
+      fp: 0,
+      nf: nota_final,
+      ef: historico.nota |> Decimal.to_integer(),
+      conceito: conceito
+    }
+  end
+
+  def update_status(%Sapiens.Cursos.Status{} = status) do
+
+    provas = status.provas || %{}
+    numer_of_testes = provas |> Map.keys() |> Enum.count() 
+    nota_final = div(Enum.reduce(provas, 0, fn {_nome, body}, acc ->
+       body["nota"] + acc
+    end), if(numer_of_testes == 0, do: 1, else: numer_of_testes))
+    conceito = if (status.ft > 15) do
+      "L"
+    else
+      if (status.ef > 0) do
+        Decimal.div(Decimal.add(status.ef, nota_final), 2) |> Decimal.to_string()
+      else
+        nota_final |> Integer.to_string()
+      end
+    end
+    %Sapiens.Cursos.Status{
+      status |
+      nf: nota_final,
+      conceito: conceito
+    }
+  end
+
+
+  def change_status(%Sapiens.Cursos.Status{} = status, attrs \\ %{}) do
+    Sapiens.Cursos.Status.changeset(status, attrs)
   end
 end
