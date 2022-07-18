@@ -51,6 +51,13 @@
                       <%= error_tag(f, :nome) %>
                     </div>
 
+
+                    <div class="flex items-center justify-start gap-x-4 mb-2">
+                      <%= label(f, :date) %>
+                      <%= date_input(f, :date) %>
+                      <%= error_tag(f, :date) %>
+                    </div>
+
                     <div class="flex items-center justify-start gap-x-4 mb-2">
                       <%= label(f, :hora) %>
                       <%= time_input(f, :hora) %>

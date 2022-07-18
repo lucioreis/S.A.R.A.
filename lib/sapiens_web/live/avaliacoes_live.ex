@@ -4,6 +4,7 @@ defmodule SapiensWeb.AvaliacoesLive do
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     id = String.to_integer(id)
+    {:ok, estudante} = Sapiens.Estudantes.by_id(id)
 
     socket =
       socket
@@ -21,13 +22,38 @@ defmodule SapiensWeb.AvaliacoesLive do
       )
       |> assign(name: "Avaliações")
       |> assign(estudante_id: id)
+      |> assign(estudante: estudante)
       |> assign(user_id: id)
-      |> assign(grades: get_grades())
+      |> assign(grades: get_grades(estudante))
 
     {:ok, socket}
   end
 
-  defp get_grades() do
+  defp get_grades(estudante) do
+    {:ok, turmas} = Sapiens.Estudantes.get_turmas_matriculado(estudante)
+
+    for turma <- turmas do
+      turmas_status = Sapiens.Estudantes.get_status(estudante, turma)
+      turma = Sapiens.Repo.preload(turma, :disciplina)
+
+      timestamp =
+        Enum.random(hora: Enum.random(1..12), minuto: Enum.random(1..50), dia: Enum.random(1..23))
+
+      IO.inspect(%{
+        nome: turma.disciplina.nome,
+        faltas_p: turmas_status.fp,
+        faltas_t: turmas_status.ft,
+        provas: turmas_status.provas,
+        total: turmas_status.nf,
+        nota_final: turmas_status.nf,
+        exame_final: turmas_status.ef,
+        conceito: turmas_status.conceito,
+        timestamp: timestamp
+      })
+    end
+  end
+
+  defp _get_grades() do
     for _ <- 1..Enum.random(1..10) do
       nome = "INF #{Enum.random(100..300)}"
       f_pratica = Enum.random(0..10)

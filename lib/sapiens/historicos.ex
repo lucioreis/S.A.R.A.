@@ -70,7 +70,6 @@ defmodule Sapiens.Historicos do
     semestre_atual = Sapiens.Utils.semestre_atual()
     turma = Repo.preload(turma, :disciplina)
 
-
     Repo.get_by(Historico,
       ano: ano_atual,
       semestre: semestre_atual,
@@ -91,15 +90,18 @@ defmodule Sapiens.Historicos do
       semestre: Sapiens.Utils.semestre_atual(),
       disciplina_id: turma.disciplina_id,
       estudante_id: estudante_id
-    )  |> Ecto.Changeset.change(
-      %{
-        notas: status.provas,
-        nota: status.nf,
-        turma_pratica: status.fp,
-        turma_teorica: status.ft,
-        conceito: status.conceito
-      }
-    )|> IO.inspect() |> Repo.update()
-
+    )
+    |> IO.inspect()
+    |> Sapiens.Cursos.Historico.changeset(%{
+      ano: Sapiens.Utils.ano_atual(),
+      semestre: Sapiens.Utils.semestre_atual(),
+      notas: status.provas,
+      nota: status.nf,
+      turma_pratica: status.fp,
+      turma_teorica: status.ft,
+      conceito: status.conceito
+    })
+    |> IO.inspect()
+    |> Repo.update()
   end
 end

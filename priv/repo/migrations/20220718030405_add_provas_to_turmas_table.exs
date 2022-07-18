@@ -1,4 +1,4 @@
-defmodule Sapiens.Repo.Migrations.AddLocalToTurmasTable do
+defmodule Sapiens.Repo.Migrations.AddProvasToTurmasTable do
   use Ecto.Migration
 
   def change do

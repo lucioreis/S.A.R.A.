@@ -98,9 +98,16 @@ defmodule SapiensWeb.Live.Components.ListAlunos do
     {:noreply, assign(socket, :edit, not socket.assigns.edit)}
   end
 
-  def handle_event("notas_changed", %{"status" => %{"aluno_id" => aluno_id}} = form, socket) do
+  def handle_event(
+        "notas_changed",
+        %{"status" => %{"aluno_id" => aluno_id, "ft" => ft, "fp" => fp}} = form,
+        socket
+      ) do
+    IO.inspect(form, label: "form")
     aluno_id = String.to_integer(aluno_id)
     status = socket.assigns.statuses[aluno_id]
+    ft = String.to_integer(ft)
+    fp = String.to_integer(fp)
 
     provas =
       Enum.reduce(form["status"], %{}, fn {nome, nota}, acc ->
@@ -122,6 +129,8 @@ defmodule SapiensWeb.Live.Components.ListAlunos do
       Estudantes.update_status(%{
         status
         | provas: provas,
+          fp: fp,
+          ft: ft,
           ef:
             try do
               String.to_integer(form["status"]["ef"])
@@ -138,6 +147,10 @@ defmodule SapiensWeb.Live.Components.ListAlunos do
     send(self(), {:update_menos, menos})
 
     socket = assign(socket, statuses: %{socket.assigns.statuses | aluno_id => status})
+    {:noreply, socket}
+  end
+
+  def handle_event("notas_changed", %{"status" => %{"aluno_id" => aluno_id}} = form, socket) do
     {:noreply, socket}
   end
 

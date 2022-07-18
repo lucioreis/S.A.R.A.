@@ -27,10 +27,11 @@ alias Sapiens.{
 ```elixir
 {:ok, prof} = Professores.by_id(1, [:disciplinas])
 {:ok, turma_one} = Turmas.by_id(2)
-{:ok, turma_two} = Turmas.by_id(2)
-{:ok, estudante} = Estudantes.by_id(1)
+{:ok, turma_two} = Turmas.by_id(7)
+{:ok, estudante} = Estudantes.by_id(2)
 turma_one = Repo.preload(turma_one, :disciplina)
 Plano.adiciona(estudante, turma_one.disciplina)
+# Professores.adiciona_turma(prof, turma_two)
 
 teste = %{
   total: 100,
@@ -43,10 +44,23 @@ teste = %{
 # Sapiens.Historicos.create_teste(turma_one, {:P4, teste})
 # |> Enum.map(fn changeset -> Repo.update!(changeset) end)
 
-status = Sapiens.Estudantes.get_status(estudante, turma_two)
-%{status | ef: 80, ft: 16} |> Sapiens.Estudantes.update_status()
-final_grade = Sapiens.Historicos.get_nota_final(estudante, turma_two)
-Sapiens.Historicos.set_historico_from_status(estudante.id, turma_two, status)
+# status = Sapiens.Estudantes.get_status(estudante, turma_two)
+# %{status | ef: 80, ft: 16} |> Sapiens.Estudantes.update_status()
+# final_grade = Sapiens.Historicos.get_nota_final(estudante, turma_two)
+# Sapiens.Historicos.set_historico_from_status(estudante.id, turma_two, status)
+# Sapiens.Cursos.Historico.changeset(%Sapiens.Cursos.Historico{}, %{ano: 0, semestre: 0, turma_pratica: 9})"
+{:ok, turma_one} =
+  Turmas.create_avaliacao(turma_one, %{
+    "nome" => "P1",
+    "local" => "PVB 123",
+    "nota" => 100,
+    "data" => ~D[2022-08-13],
+    "ordem" => 1,
+    "hora" => 18
+  })
+
+{:ok, historico} = Sapiens.Estudantes.get_historico(estudante, turma_one.disciplina)
+Sapiens.Turmas.sync_estudantes(turma_one)
 ```
 
 ```elixir

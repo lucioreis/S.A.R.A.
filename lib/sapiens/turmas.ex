@@ -49,9 +49,70 @@ defmodule Sapiens.Turmas do
     Repo.preload(turma, field)
   end
 
-  def get_numero_alunos(turma) do
+  def create_avaliacao(
+        turma,
+        %{"nome" => nome, "local" => _, "nota" => _, "date" => _, "hora" => _, "ordem" => _} =
+          teste
+      ) do
+    case Sapiens.Cursos.Turma.changeset(
+           turma,
+           %{
+             provas:
+               Map.put(
+                 if(turma.provas == nil, do: %{}, else: turma.provas),
+                 nome,
+                 teste
+               )
+           }
+         )
+         |> Repo.update() do
+      {:ok, turma} ->
+        sync_estudantes(turma)
+        {:ok, turma}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
-  def get_average_grade(turma) do
+  def sync_estudantes(turma) do
+    turma = Repo.preload(turma, [:estudantes, :disciplina])
+
+    case turma.provas do
+      nil ->
+        Enum.map(
+          turma.estudantes,
+          fn estudante ->
+            case Sapiens.Estudantes.get_historico(estudante, turma.disciplina) do
+              {:ok, historico} ->
+                Sapiens.Cursos.Estudante.changeset(historico, %{notas: %{}, nota: 0})
+                |> Repo.update()
+
+              msg ->
+                {:err, msg}
+            end
+          end
+        )
+
+      provas ->
+        Enum.map(
+          turma.estudantes,
+          fn estudante ->
+            {:ok, historico} = Sapiens.Estudantes.get_historico(estudante, turma.disciplina)
+
+            provas =
+              Enum.reduce(
+                provas,
+                %{},
+                fn {nome, prova}, acc ->
+                  Map.put(acc, nome, %{prova | "nota" => 0})
+                end
+              )
+
+            Sapiens.Cursos.Historico.changeset(historico, %{notas: provas, nota: 0, conceito: "0"})
+            |> Repo.update()
+          end
+        )
+    end
   end
 end

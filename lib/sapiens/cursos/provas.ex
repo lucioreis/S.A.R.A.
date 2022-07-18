@@ -1,4 +1,3 @@
-
 defmodule Sapiens.Cursos.Provas do
   import Ecto.Changeset
   use Ecto.Schema

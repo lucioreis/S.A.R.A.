@@ -4,10 +4,10 @@
       <div class="flex flex-col w-[90%]  border border-b border-black rounded-md m-5">
         <div class=" flex py-1 px-2 bg-highlight rounded-t-md text-base-100 justify-between">
           <div>
-            <%= grade |> elem(0) %>
+            <%= grade[:nome] %>
           </div>
           <div class="opacity-50">
-            Atualizado à <%= case elem(grade, 8) do
+            Atualizado à <%= case grade[:timestamp] do
               {:minuto, min} -> "#{min} min"
               {:hora, hora} -> "#{hora} hrs"
               {:dia, dia} -> "#{dia} min"
@@ -24,13 +24,13 @@
 
             <div class="flex justify-between px-2  md:rounded-bl-md">
               <div class="flex justify-start w-1/2 bg-base-100">
-                <%= for {test, value} <- elem(grade, 3) do %>
+                <%= for {test, value} <- grade[:provas] do %>
                   <div class="center w-9">
                     <div>
                       <%= test %>
                     </div>
-                    <div class={"#{if value >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"}>
-                      <%= value %>
+                    <div class={"#{if value["nota"] >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"}>
+                      <%= value["nota"] %>
                     </div>
                   </div>
                 <% end %>
@@ -39,21 +39,21 @@
                 <div class="center w-12">
                   <div>Total</div>
                   <div class={
-                    "#{if elem(grade, 4) >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
+                    "#{if grade[:nota_final]>= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
                   }>
-                    <%= elem(grade, 4) %>
+                    <%= grade[:nota_final] %>
                   </div>
                 </div>
                 <div class="center w-9">
                   <div>E.F</div>
-                  <div><%= elem(grade, 5) %></div>
+                  <div><%= grade[:exame_final] %></div>
                 </div>
                 <div class="center w-9">
                   <div>N.F</div>
                   <div class={
-                    "#{if elem(grade, 6) >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
+                    "#{if grade[:nota_final] >= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
                   }>
-                    <%= elem(grade, 6) %>
+                    <%= grade[:nota_final] %>
                   </div>
                 </div>
               </div>
@@ -71,20 +71,20 @@
               <div class="flex w-[60%] ml-0 justify-center bg-base-400 rounded-bl-md md:rounded-bl-none">
                 <div class="center mr-2">
                   <div>Teóricas</div>
-                  <span><%= elem(grade, 1) %></span>
+                  <span><%= grade[:faltas_t] %></span>
                 </div>
                 <!-- <div class="grid place-items-center"> -->
                 <div class="center">
                   <div>Práticas</div>
-                  <span><%= elem(grade, 2) %></span>
+                  <span><%= grade[:faltas_p] %></span>
                 </div>
               </div>
 
               <div class=" text-blue-500 text-3xl w-[40%] bg-base-100  rounded-br-md center font-bold">
                 <div class={
-                  "#{if elem(grade, 7) >= 59.5 and elem(grade, 7) != "L", do: 'text-blue-500', else: 'text-red-500'}"
+                  "#{if grade[:conceito] == "L" || String.to_integer(grade[:conceito]) <= 59.5, do: 'text-red-500', else: 'text-blue-500'}"
                 }>
-                  <%= elem(grade, 7) %>
+                  <%= grade[:conceito] %>
                 </div>
               </div>
             </div>

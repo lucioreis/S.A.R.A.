@@ -19,15 +19,18 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
     alunos = for aluno <- alunos, do: Repo.preload(aluno, :historicos)
 
     media =
-      div(Enum.sum(for aluno <- alunos, do: Historicos.get_nota_final(aluno, selected_turma)),
+      div(
+        Enum.sum(for aluno <- alunos, do: Historicos.get_nota_final(aluno, selected_turma)),
         case Enum.count(alunos) do
           0 -> 1
           n -> n
-        end)
+        end
+      )
 
-    menos = Enum.count(alunos, fn aluno ->   
+    menos =
+      Enum.count(alunos, fn aluno ->
         Sapiens.Historicos.get_nota_final(aluno, selected_turma) < 60
-    end)
+      end)
 
     {:ok,
      socket
@@ -71,7 +74,7 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
     {:ok, turma} = Turmas.by_id(String.to_integer(turma_id))
     turma = Repo.preload(turma, [:estudantes, :disciplina, :professor])
     alunos = for aluno <- turma.estudantes, do: Repo.preload(aluno, :historicos)
-    
+
     send_update(
       SapiensWeb.Live.Components.ListAlunos,
       id: turma.id,
@@ -80,18 +83,21 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
     )
 
     media =
-      div(Enum.sum(for aluno <- alunos, do: Historicos.get_nota_final(aluno, turma)),
+      div(
+        Enum.sum(for aluno <- alunos, do: Historicos.get_nota_final(aluno, turma)),
         case Enum.count(alunos) do
           0 -> 1
           n -> n
-        end)
+        end
+      )
 
-    menos = Enum.count(alunos, fn aluno ->   
+    menos =
+      Enum.count(alunos, fn aluno ->
         Sapiens.Historicos.get_nota_final(aluno, turma) < 60
-    end)
+      end)
 
     {
-      :noreply, 
+      :noreply,
       socket
       |> assign(selected_turma: turma)
       |> assign(media: media)
@@ -107,19 +113,6 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
   end
 
   @impl true
-  def handle_event("build_teste", %{"turma_id" => turma_id}, socket) do
-    teste = %{
-      total: 100,
-      nota: 0,
-      local: "PVA 123",
-      ordem: 1,
-      hora: 18
-    }
-
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_event("edit_turma", %{"turma_id" => turma_id}, socket) do
     turma = Enum.find(socket.assigns.turmas, &(&1.id == String.to_integer(turma_id)))
     socket = assign(socket, toggle_edit_turma: not socket.assigns.toggle_edit_turma)
@@ -128,23 +121,31 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
 
   @impl true
   def handle_event("save", %{"avaliacao" => form}, socket) do
-    %{"nome" => nome, "hora" => hora, "local" => local, "ordem" => ordem, "total" => total} = form
+    %{
+      "nome" => nome,
+      "hora" => hora,
+      "date" => date,
+      "local" => local,
+      "ordem" => ordem,
+      "total" => total
+    } = form
 
     teste = %{
-      hora: hora,
-      local: local,
-      nota: 0,
-      ordem: String.to_integer(ordem),
-      total: String.to_integer(total)
+      "nome" => nome,
+      "hora" => hora,
+      "date" => date,
+      "local" => local,
+      "ordem" => String.to_integer(ordem),
+      "nota" => String.to_integer(total)
     }
 
-    Sapiens.Historicos.create_teste(socket.assigns.turma, {nome, teste})
-    {:ok, turma} = Turmas.by_id(socket.assigns.turma.id)
+    {:ok, turma} = Turmas.by_id(socket.assigns.selected_turma.id)
     turma = turma |> Repo.preload([:estudantes, :disciplina])
+    Sapiens.Turmas.create_avaliacao(turma, teste)
 
     send_update(
       SapiensWeb.Live.Components.ListAlunos,
-      id: socket.assigns.professor.id,
+      id: socket.assigns.selected_turma.id,
       alunos: socket.assigns.turma.estudantes,
       turma: turma
     )

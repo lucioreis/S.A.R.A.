@@ -1,4 +1,3 @@
-
 defmodule Sapiens.Cursos.Status do
   import Ecto.Changeset
   use Ecto.Schema
@@ -18,6 +17,6 @@ defmodule Sapiens.Cursos.Status do
   @doc false
   def changeset(provas, attrs) do
     provas
-    |> cast(attrs, [:nome, :matricula, :provas, :ft, :fp, :ef, :conceito ])
+    |> cast(attrs, [:nome, :matricula, :provas, :ft, :fp, :ef, :conceito])
   end
 end
