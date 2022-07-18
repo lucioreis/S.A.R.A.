@@ -55,7 +55,8 @@ defmodule Sapiens.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ecto_psql_extras, "~> 0.6"},
       {:surface, "~> 0.7.4"},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:timex, "~> 3.7"}
     ]
   end
 

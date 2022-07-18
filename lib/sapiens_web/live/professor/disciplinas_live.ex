@@ -12,7 +12,12 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
   def mount(%{"id" => id}, _session, socket) do
     id = String.to_integer(id)
     {:ok, professor} = Professores.by_id(id, [:disciplinas, :turmas])
-    turmas = for t <- professor.turmas, do: Repo.preload(t, :disciplina)
+
+    turmas =
+      for t <- professor.turmas do
+        Repo.preload(t, :disciplina)
+      end |> Enum.sort(&(&1.numero < &2.numero))
+
     {:ok, selected_turma} = Turmas.by_id(1)
     selected_turma = Repo.preload(selected_turma, :estudantes)
     {:ok, alunos} = Turmas.get_all_estudantes(selected_turma)
@@ -45,6 +50,7 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
      |> assign(user_id: id)
      |> assign(selected_turma: 1)
      |> assign(turma: selected_turma)
+     |> assign(num_avaliacoes: selected_turma.provas |> Map.keys() |> Enum.count())
      |> assign(professor: professor)
      |> assign(turmas: turmas)
      |> assign(alunos: alunos)
@@ -70,7 +76,6 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
 
   @impl true
   def handle_event("set_turma", %{"turma_id" => turma_id}, socket) do
-    IO.inspect(turma_id)
     {:ok, turma} = Turmas.by_id(String.to_integer(turma_id))
     turma = Repo.preload(turma, [:estudantes, :disciplina, :professor])
     alunos = for aluno <- turma.estudantes, do: Repo.preload(aluno, :historicos)
@@ -101,6 +106,7 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
       socket
       |> assign(selected_turma: turma)
       |> assign(media: media)
+      |> assign(num_avaliacoes: turma.provas |> Map.keys() |> Enum.count())
       |> assign(menos: menos)
     }
   end
@@ -150,7 +156,11 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
       turma: turma
     )
 
-    {:noreply, socket}
+    {
+      :noreply,
+      socket
+      |> assign(num_avaliacoes: turma.provas |> Map.keys() |> Enum.count())
+    }
   end
 
   @impl true

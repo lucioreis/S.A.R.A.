@@ -73,9 +73,7 @@ defmodule SapiensWeb.AcertoLive do
   @impl true
   def handle_info({:mat, %{disciplina: disciplina, sender: sender}}, socket) do
     if sender == self() do
-      # IO.inspect({:mat, %{sender: sender}})
       {:noreply, socket}
-      # require IEx; IEx.pry
     else
       response = Alteracoes.load(socket.assigns.estudante)
 

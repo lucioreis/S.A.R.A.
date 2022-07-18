@@ -1,19 +1,18 @@
-<header>
-  <.live_component
-    module={SapiensWeb.Components.Navbar}
-    id={:navbar_2}
-    name={@name}
-    user_id={@user_id}
-    class="shadow-black shadow-lg"
-  />
-</header>
-<main id="main" class="bg-base-100">
+<div id="main" class="bg-base-100">
   <div class="drawer drawer-mobile">
     <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
 
-    <div class="drawer-content flex flex-col bg-base-100">
+    <div class="relative drawer-content flex flex-col bg-base-100">
       <!-- Page content here -->
       <!-- <label for="my-drawer-2" class="btn btn-primary drawer-button">Open drawer</label> -->
+      <div class="sticky inset-0 z-[100]">
+        <.live_component
+          module={SapiensWeb.Components.Navbar}
+          id={:navbar_2}
+          name={@name}
+          user_id={@user_id}
+        />
+      </div>
       <%= @inner_content %>
     </div>
     <div class="drawer-side">
@@ -47,4 +46,4 @@
       </ul>
     </div>
   </div>
-</main>
+</div>

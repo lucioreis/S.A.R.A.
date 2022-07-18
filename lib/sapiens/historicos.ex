@@ -61,7 +61,7 @@ defmodule Sapiens.Historicos do
     |> Map.get(:nota)
     |> case do
       nil -> 0
-      nota -> Decimal.to_integer(nota)
+      nota -> nota
     end
   end
 
@@ -91,7 +91,6 @@ defmodule Sapiens.Historicos do
       disciplina_id: turma.disciplina_id,
       estudante_id: estudante_id
     )
-    |> IO.inspect()
     |> Sapiens.Cursos.Historico.changeset(%{
       ano: Sapiens.Utils.ano_atual(),
       semestre: Sapiens.Utils.semestre_atual(),
@@ -99,9 +98,9 @@ defmodule Sapiens.Historicos do
       nota: status.nf,
       turma_pratica: status.fp,
       turma_teorica: status.ft,
+      exame_final: status.ef,
       conceito: status.conceito
     })
-    |> IO.inspect()
     |> Repo.update()
   end
 end

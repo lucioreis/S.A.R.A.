@@ -103,9 +103,8 @@ defmodule SapiensWeb.Live.Components.ListAlunos do
         %{"status" => %{"aluno_id" => aluno_id, "ft" => ft, "fp" => fp}} = form,
         socket
       ) do
-    IO.inspect(form, label: "form")
     aluno_id = String.to_integer(aluno_id)
-    status = socket.assigns.statuses[aluno_id]
+    status = socket.assigns.statuses[aluno_id] 
     ft = String.to_integer(ft)
     fp = String.to_integer(fp)
 

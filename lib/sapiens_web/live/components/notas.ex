@@ -13,7 +13,6 @@ defmodule SapiensWeb.Live.Components.Notas do
   end
 
   def handle_event("post_notas", %{"provas" => form}, socket) do
-    IO.inspect(form)
 
     {:noreply, assign(socket, :edit, not socket.assigns.edit)}
   end

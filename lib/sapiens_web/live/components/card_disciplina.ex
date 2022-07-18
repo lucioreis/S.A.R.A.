@@ -69,7 +69,6 @@ defmodule SapiensWeb.Components.CardDisciplina do
     disciplina_id = String.to_integer(disciplina_id)
     response = Alteracoes.undo(socket.assigns.alt_agent, disciplina_id)
     alteracoes = Alteracoes.get_all(socket.assigns.alt_agent)
-    IO.inspect(alteracoes, label: "alteracoes")
 
     matriculado = disciplina_id in for(turma <- response.matriculas, do: turma.disciplina.id)
 

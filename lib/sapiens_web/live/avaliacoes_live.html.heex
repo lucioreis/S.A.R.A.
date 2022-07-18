@@ -7,11 +7,7 @@
             <%= grade[:nome] %>
           </div>
           <div class="opacity-50">
-            Atualizado à <%= case grade[:timestamp] do
-              {:minuto, min} -> "#{min} min"
-              {:hora, hora} -> "#{hora} hrs"
-              {:dia, dia} -> "#{dia} min"
-            end %>
+            Atualizado à <%= grade[:timestamp] %>
           </div>
         </div>
 
@@ -39,9 +35,9 @@
                 <div class="center w-12">
                   <div>Total</div>
                   <div class={
-                    "#{if grade[:nota_final]>= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
+                    "#{if grade[:total]>= 59.5, do: 'text-blue-500', else: 'text-red-500'}"
                   }>
-                    <%= grade[:nota_final] %>
+                    <%= grade[:total] %>
                   </div>
                 </div>
                 <div class="center w-9">

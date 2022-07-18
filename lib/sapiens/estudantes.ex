@@ -164,26 +164,6 @@ defmodule Sapiens.Estudantes do
     turma = turma |> Repo.preload(:disciplina)
     {:ok, historico} = get_historico(estudante, turma.disciplina)
     notas = historico.notas || %{}
-    numer_of_testes = notas |> Map.keys() |> Enum.count()
-
-    nota_final =
-      div(
-        Enum.reduce(notas, 0, fn {_nome, body}, acc ->
-          body["nota"] + acc
-        end),
-        if(numer_of_testes == 0, do: 1, else: numer_of_testes)
-      )
-
-    conceito =
-      if historico.turma_teorica > 15 do
-        "L"
-      else
-        if historico.nota > 0 do
-          Decimal.div(Decimal.add(historico.nota, nota_final), 2) |> Decimal.to_string()
-        else
-          nota_final |> Integer.to_string()
-        end
-      end
 
     %Sapiens.Cursos.Status{
       nome: estudante.nome,
@@ -191,18 +171,17 @@ defmodule Sapiens.Estudantes do
       provas: notas,
       ft: historico.turma_teorica,
       fp: historico.turma_pratica,
-      nf: nota_final,
-      ef: historico.nota |> Decimal.to_integer(),
-      conceito: conceito
+      ef: (historico.exame_final || 0),
+      updated_at: historico.updated_at
     }
-    |> IO.inspect(label: "get_status(estudante, historico)")
+    |> update_status() 
   end
 
   def update_status(%Sapiens.Cursos.Status{} = status) do
     provas = status.provas || %{}
     numer_of_testes = provas |> Map.keys() |> Enum.count()
 
-    nota_final =
+    total =
       div(
         Enum.reduce(provas, 0, fn {_nome, body}, acc ->
           body["nota"] + acc
@@ -210,20 +189,25 @@ defmodule Sapiens.Estudantes do
         if(numer_of_testes == 0, do: 1, else: numer_of_testes)
       )
 
+
+    nota_final =
+      if status.ef > 0 do
+        div((status.ef + total), 2)
+      else
+        total
+      end
+
     conceito =
-      if status.ft > 15 do
+      if status.ft > 15 or status.fp > 15 do
         "L"
       else
-        if status.ef > 0 do
-          Decimal.div(Decimal.add(status.ef, nota_final), 2) |> Decimal.to_string()
-        else
-          nota_final |> Integer.to_string()
-        end
+        nota_final |> Integer.to_string()
       end
 
     %Sapiens.Cursos.Status{
       status
       | nf: nota_final,
+        total: total,
         conceito: conceito
     }
   end

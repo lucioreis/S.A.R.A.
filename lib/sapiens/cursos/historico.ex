@@ -18,7 +18,8 @@ defmodule Sapiens.Cursos.Historico do
     field(:ano, :integer)
     field(:conceito, :string)
     field(:semestre, :integer)
-    field(:nota, :decimal)
+    field(:nota, :integer)
+    field(:exame_final, :integer)
     field(:notas, :map)
     field(:turma_pratica, :integer)
     field(:turma_teorica, :integer)
@@ -39,7 +40,8 @@ defmodule Sapiens.Cursos.Historico do
       :notas,
       :conceito,
       :turma_pratica,
-      :turma_teorica
+      :turma_teorica,
+      :exame_final
     ])
     |> validate_required([:ano, :semestre])
     |> unique_constraint([:ano, :semestre, :disciplina_id, :estudante_id],

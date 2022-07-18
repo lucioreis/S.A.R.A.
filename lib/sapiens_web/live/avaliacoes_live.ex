@@ -1,5 +1,6 @@
 defmodule SapiensWeb.AvaliacoesLive do
   use SapiensWeb, :live_view
+  use Timex
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -36,20 +37,17 @@ defmodule SapiensWeb.AvaliacoesLive do
       turmas_status = Sapiens.Estudantes.get_status(estudante, turma)
       turma = Sapiens.Repo.preload(turma, :disciplina)
 
-      timestamp =
-        Enum.random(hora: Enum.random(1..12), minuto: Enum.random(1..50), dia: Enum.random(1..23))
-
-      IO.inspect(%{
+      %{
         nome: turma.disciplina.nome,
         faltas_p: turmas_status.fp,
         faltas_t: turmas_status.ft,
         provas: turmas_status.provas,
-        total: turmas_status.nf,
+        total: turmas_status.total,
         nota_final: turmas_status.nf,
         exame_final: turmas_status.ef,
         conceito: turmas_status.conceito,
-        timestamp: timestamp
-      })
+        timestamp: Timex.from_now(turmas_status.updated_at)
+      }
     end
   end
 
