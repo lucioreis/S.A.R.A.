@@ -1,11 +1,10 @@
-defmodule Sapiens.Cursos.Notifications do
+defmodule Sapiens.Cursos.Notification do
   use Ecto.Schema
   import Ecto.Changeset
 
-    schema "notifications" do
+  schema "notifications" do
     field(:read, :boolean)
     field(:message, :string)
-    
 
     timestamps()
 
@@ -18,7 +17,7 @@ defmodule Sapiens.Cursos.Notifications do
   def changeset(notification, attrs \\ %{}) do
     notification
     |> cast(
-      attrs, 
+      attrs,
       [
         :read,
         :message

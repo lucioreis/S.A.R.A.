@@ -22,7 +22,7 @@
         <%= @name %>
       </div>
       <div id="links" class=" place-self-end  gap-3 flex justify-end my-auto md:w-1/3 pr-3">
-        <SapiensWeb.Live.Components.Notifications.render/>
+        <%= live_component SapiensWeb.Live.Components.Notifications, user_id: @user_id, id: @user_id %>
         <span class="material-icons-outlined  md-32 md:hover:text-highlight cursor-pointer">
           message
         </span>

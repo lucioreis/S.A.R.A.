@@ -40,6 +40,8 @@ defmodule Sapiens.Cursos.Estudante do
 
     has_many(:historicos, Sapiens.Cursos.Historico)
 
+    has_many(:notifications, Sapiens.Cursos.Notification)
+
     belongs_to(:curso, Sapiens.Cursos.Curso)
   end
 

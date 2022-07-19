@@ -61,8 +61,9 @@ teste = %{
 #
 use Timex
 {:ok, historico} = Sapiens.Estudantes.get_historico(estudante, turma_one.disciplina)
-Sapiens.Turmas.sync_estudantes(turma_one)
-Timex.from_now(historico.updated_at)
+# Sapiens.Turmas.sync_estudantes(turma_one)
+# Timex.from_now(historico.updated_at)
+Sapiens.Notifications.build_grade_notification(turma_one.disciplina, estudante, "teste_dois")
 ```
 
 ```elixir

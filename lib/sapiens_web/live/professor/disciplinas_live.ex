@@ -16,7 +16,8 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
     turmas =
       for t <- professor.turmas do
         Repo.preload(t, :disciplina)
-      end |> Enum.sort(&(&1.numero < &2.numero))
+      end
+      |> Enum.sort(&(&1.numero < &2.numero))
 
     {:ok, selected_turma} = Turmas.by_id(1)
     selected_turma = Repo.preload(selected_turma, :estudantes)
@@ -178,5 +179,14 @@ defmodule SapiensWeb.Professor.DisciplinasLive do
   @impl true
   def handle_info({:update_menos, menos}, socket) do
     {:noreply, socket |> assign(menos: menos)}
+  end
+
+  def notify(disciplina, target, msg) do
+    Sapiens.Notifications.create_grade_notification(
+      disciplina,
+      target,
+      msg
+    )
+
   end
 end

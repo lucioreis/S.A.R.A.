@@ -32,6 +32,7 @@ defmodule Sapiens.Cursos.Professor do
     )
 
     has_many(:turmas, Sapiens.Cursos.Turma)
+    has_many(:notifications, Sapiens.Cursos.Notification)
     belongs_to(:curso, Sapiens.Cursos.Curso)
   end
 

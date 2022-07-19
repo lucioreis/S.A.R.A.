@@ -93,7 +93,16 @@ defmodule SapiensWeb.Live.Components.ListAlunos do
       |> assign(:edit, not socket.assigns.edit)
     }
 
+
+
+    disciplina = Sapiens.Repo.preload(socket.assigns.turma, :disciplina).disciplina
+    {:ok, aluno} = Sapiens.Estudantes.by_id(aluno_id)
     Sapiens.Historicos.set_historico_from_status(aluno_id, socket.assigns.turma, status)
+    notify(
+      disciplina,
+      aluno,
+      "Notas atualizadas. Conceito: #{status.conceito}"
+    )
 
     {:noreply, assign(socket, :edit, not socket.assigns.edit)}
   end
@@ -182,5 +191,14 @@ defmodule SapiensWeb.Live.Components.ListAlunos do
         end
       end
     )
+  end
+
+  defp notify(disciplina, target, msg) do
+    Sapiens.Notifications.create_grade_notification(
+      disciplina,
+      target,
+      msg
+    )
+
   end
 end
