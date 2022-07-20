@@ -4,12 +4,13 @@ defmodule SapiensWeb.Live.Components.Notifications do
   def mount(socket) do
     notifications = 
           Sapiens.Notifications.get_all_notifications(1)
+    user_id = 1
 
     {
       :ok,
       socket
       |> assign(notifications: notifications)
-      |> assign(user_id: 1)
+      |> assign(user_id: user_id)
       |> assign(toggle: false)
     }
   end

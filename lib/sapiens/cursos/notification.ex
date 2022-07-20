@@ -3,7 +3,7 @@ defmodule Sapiens.Cursos.Notification do
   import Ecto.Changeset
 
   schema "notifications" do
-    field(:read, :boolean)
+    field(:read, :boolean, default: false)
     field(:message, :string)
 
     timestamps()

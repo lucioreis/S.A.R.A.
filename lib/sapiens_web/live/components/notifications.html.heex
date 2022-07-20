@@ -4,11 +4,11 @@
     <div class="relative">
       <button  phx-click="toggle" phx-target={@myself} id="notifications">
           <%= if Enum.count(@notifications |> Enum.filter(&(&1.read == false))) != 0 do %>
-        <div class="absolute right-0 rounded-full w-4 h-4 bg-red-600 text-white text-xs">
-          <span class="center">
-            <%= Enum.count(@notifications |> Enum.filter(&(&1.read == false)))  %>
-          </span>
-        </div>
+            <div class="absolute right-0 rounded-full w-4 h-4 bg-red-600 text-white text-xs">
+              <span class="center">
+                <%= Enum.count(@notifications |> Enum.filter(&(&1.read != false)))  %>
+              </span>
+            </div>
             <% end %>
         <span
           class="material-icons-outlined md-32 stroke-black stroke-1 md:hover:text-highlight cursor-pointer md:transition md:hover:scale-120">
