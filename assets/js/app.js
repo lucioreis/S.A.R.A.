@@ -28,6 +28,7 @@ import Hooks from "./_hooks"
 import Alpine from "alpinejs"
 
 window.Alpine = Alpine;
+Alpine.start()
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
@@ -91,4 +92,3 @@ function goPrev() {
 }
 prev.addEventListener("click", goPrev);
 
-Alpine.start()
