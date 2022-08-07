@@ -6,8 +6,11 @@ and progression through a certain graduation course.
 ## Requirements
 
 PostgreSQL 14.0
+
 Elixir 1.13.4-otp-24
+
 Erlang 24.3.3
+
 Node 16.11.1
 
 We recommend you to use [ ASDF ]( https://asdf-vm.com/ ) to install the requirements
