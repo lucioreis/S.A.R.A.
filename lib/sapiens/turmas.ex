@@ -14,6 +14,16 @@ defmodule Sapiens.Turmas do
 
   alias Sapiens.Repo, warn: false
 
+  @doc"""
+  Retorna turma pelo seu id, retorna {:ok, %Turma{}} ou {:error, razão}
+
+  ## Examples
+    ```
+    iex>Turma.by_id(1)
+    {:ok, %Turma{id: 1, ...}
+    ```
+
+  """
   def by_id(id) do
     case Repo.get_by(Turma, id: id) do
       nil ->
@@ -24,6 +34,17 @@ defmodule Sapiens.Turmas do
     end
   end
 
+  @doc """
+  Retorna por uma lista de vqlores
+  ## Examples
+    ```
+    iex>Turma.get_by([:key1, :key2])
+    {ok, Turma}
+    
+    iex>Turma.get_by([:chave_que_nâo_existe])
+    {:error, "Turma não encontrada"}
+    ```
+  """
   def get_by(list_of_keys) do
     case Repo.get_by(Turma, list_of_keys) do
       nil -> {:error, "Turma não encontrada"}
@@ -31,24 +52,53 @@ defmodule Sapiens.Turmas do
     end
   end
 
+  @doc """
+  Retorna o horário da turma no formato %{{dia, hora}=>%{local: XXX, codigo: XXX}}
+  """
   def get_horarios(turma) do
     turma.horario
     |> Enum.reduce(%{}, fn {<<dia, hora>>, value}, acc -> Map.put_new(acc, {dia, hora}, value) end)
   end
 
+  @doc """
+  Retorna uma lista de todos os estudantes
+  ## Examples
+    iex>Turma.get_all_estudantes(%Turma{})
+    [
+      %Estudante{},
+      ...
+    ]
+  """
   def get_all_estudantes(turma) do
     turma = Repo.preload(turma, :estudantes)
     {:ok, turma.estudantes}
   end
 
+  @doc """
+  Busca campo(field) no banco de dados de uma lista de turma.
+  ## Examples
+    iex>Turmas.preload_all([%Turma{}], :discplina)
+    [
+      %Turma{disciplina: %Disciplina{}},
+      ...
+    ]
+  """
   def preload_all(turmas, field) do
     Enum.map(turmas, &Repo.preload(&1, field))
   end
 
+  @doc """
+  Busca um campo de ums turma no banco de dados
+  """
   def preload(turma, field) do
     Repo.preload(turma, field)
   end
 
+  @doc """
+  Cria uma avalição para uma turma, avaliação deve conter um nome("P1", "P2", "T1", etc.)
+  local, nota(quanto vale a avaliação), date quando será a avaliação, hora e ordem se ela
+  é a primeira ou segunda prova.
+  """
   def create_avaliacao(
         turma,
         %{"nome" => nome, "local" => _, "nota" => _, "date" => _, "hora" => _, "ordem" => _} =
@@ -75,6 +125,10 @@ defmodule Sapiens.Turmas do
     end
   end
 
+  @doc """
+  Sincroniza os estudates de uma turma com o banco de dados.
+  Esta funcção coloca as avaçiações criadas pelos professores no histórico de cada aluno
+  """
   def sync_estudantes(turma) do
     turma = Repo.preload(turma, [:estudantes, :disciplina])
 

@@ -14,7 +14,7 @@
       <div class="flex flex-col w-full justify-between relative p-2">
         <%= if @matriculado and @clean do %>
           <div class="absolute inset text-xs text-base-100 bg-green-700  rounded-sm p-1 opacity-75">
-            <%= @matriculado %>
+            <%= if @matriculado, do: "Matriculado" %>
           </div>
         <% end %>
         <%= if not @clean do %>

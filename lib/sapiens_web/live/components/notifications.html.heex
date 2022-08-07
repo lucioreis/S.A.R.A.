@@ -6,7 +6,7 @@
           <%= if Enum.count(@notifications |> Enum.filter(&(&1.read == false))) != 0 do %>
             <div class="absolute right-0 rounded-full w-4 h-4 bg-red-600 text-white text-xs">
               <span class="center">
-                <%= Enum.count(@notifications |> Enum.filter(&(&1.read != false)))  %>
+                <%= Enum.count(@notifications |> Enum.filter(&(&1.read == false)))  %>
               </span>
             </div>
             <% end %>

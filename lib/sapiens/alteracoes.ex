@@ -264,24 +264,7 @@ defmodule Sapiens.Alteracoes do
   defp calc_mats(state, included, removed) do
     (state.matriculas -- removed) ++ included
 
-    # matriculas = Enum.reject(state.matriculas, fn turma -> turma.id in for(t <- state.removed, do: t) e  
-    # matriculas ++ state.included
   end
-
-  # defp mats(state) do
-  #   state =
-  #     case get_all(state.server) do
-  #       [] ->
-  #         %State{state | commited: true}
-  #
-  #       reqs ->
-  #         Enum.reduce(reqs, state, &Sapiens.Alteracoes.update_state(&2, &1))
-  #     end
-  #
-  #   matriculas = Turmas.preload_all(state.matriculas, :disciplina)
-  #   {:ok, horario} = Estudantes.build_horario(matriculas)
-  #   set_state(%State{state | matriculas: matriculas, horario: horario})
-  # end
 
   def load(estudante) do
     {:ok, server} = start_link(estudante.id)
