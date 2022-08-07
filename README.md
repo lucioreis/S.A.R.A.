@@ -1,4 +1,5 @@
-# Real Time Register and Evaluation Academic System
+# ***S.A.R.A*** - ***S***istema de ***A***valiação e ***R***egistro ***A***cadêmico
+## Register Academic Information System
 
 A system to register academic information and evaluate and control students grades
 and progression through a certain graduation course.
